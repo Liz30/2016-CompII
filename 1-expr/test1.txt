@@ -1,0 +1,6 @@
+//Comentario de linea
+assign x  = 10;
+assign y = 20;
+assign z = 12;
+(x + y) * 3
+// Comentario final
