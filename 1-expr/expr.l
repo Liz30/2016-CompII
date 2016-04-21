@@ -9,7 +9,9 @@
 using namespace std;
 
 string id;
-int num;
+string merror;
+int inum;
+float fnum;
 int line = 0;
 
 %}
@@ -28,11 +30,12 @@ LETTER [a-zA-Z]
 "assign" { return TK_ASSIGN; }
 [ \t] /* Nada */
 \n  { line++; }
-{DIGIT}+ { num = atoi(yytext); return TK_NUM; }
+{DIGIT}+ { inum = atoi(yytext); return TK_INT; }
+{DIGIT}+.{DIGIT}+ { fnum = atof(yytext); return TK_FLOAT; }
 {LETTER}({DIGIT}|{LETTER})* { id = yytext; return TK_ID; }
 "//"[^\n]*
 <<EOF>> { return TK_EOF; }
-.   { printf("Simbolo no valido\n"); }
+.   { merror = yytext; return TK_ERROR; }
 
 %%
 
@@ -40,7 +43,7 @@ int main(){
   int token = yylex();
 
   while (true){
-    cout <<endl << token ;
+    cout << token ;
 
     switch(token){
       case TK_EQUAL: cout << " -> EQUAL  "; break;
@@ -50,11 +53,13 @@ int main(){
       case TK_CLOSEP: cout << " -> CLOSEP  "; break;
       case TK_SEMIC: cout << " -> SEMIC  "; break;
       case TK_ASSIGN: cout << " -> ASSIGN  "; break;
-      case TK_NUM: cout << " -> NUM: "<<num; break;
+      case TK_INT: cout << " -> INT: "<<inum; break;
       case TK_ID: cout << " -> ID: "<<id; break;
       case TK_EOF: cout << " -> EOF  "; return 0;
+      case TK_FLOAT: cout << " -> FLOAT: "<<fnum; break;
+      case TK_ERROR: cout << " -> Simbolo no valido: " << merror; break;
     }
-
+    cout << endl;
     token = yylex();
   }
   return 0;

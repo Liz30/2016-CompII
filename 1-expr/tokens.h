@@ -7,9 +7,12 @@
 #define TK_CLOSEP   13
 #define TK_EQUAL    14
 #define TK_ID       15
-#define TK_NUM      16
+#define TK_INT      16
 #define TK_SEMIC    17
 #define TK_ASSIGN   18
-#define TK_EOF      19 
+#define TK_EOF      19
+
+#define TK_FLOAT    20
+#define TK_ERROR    21
 
 #endif
