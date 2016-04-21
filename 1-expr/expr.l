@@ -9,7 +9,7 @@
 using namespace std;
 
 string id;
-string merror;
+string merror, mcomment;
 int inum;
 float fnum;
 int line = 0;
@@ -33,7 +33,7 @@ LETTER [a-zA-Z]
 {DIGIT}+ { inum = atoi(yytext); return TK_INT; }
 {DIGIT}+.{DIGIT}+ { fnum = atof(yytext); return TK_FLOAT; }
 {LETTER}({DIGIT}|{LETTER}|_)* { id = yytext; return TK_ID; }
-"//"[^\n]*
+"//"[^\n]*  { mcomment = yytext; return TK_COMMENT; }
 <<EOF>> { return TK_EOF; }
 .   { merror = yytext; return TK_ERROR; }
 
@@ -58,6 +58,7 @@ int main(){
       case TK_EOF: cout << " -> EOF  "; return 0;
       case TK_FLOAT: cout << " -> FLOAT: "<<fnum; break;
       case TK_ERROR: cout << " -> Simbolo no valido: " << merror; break;
+      case TK_COMMENT: cout << " -> COMMENT: "<< mcomment; break;
     }
     cout << endl;
     token = yylex();

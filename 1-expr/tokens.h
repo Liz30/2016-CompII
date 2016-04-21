@@ -14,5 +14,6 @@
 
 #define TK_FLOAT    20
 #define TK_ERROR    21
+#define TK_COMMENT  22
 
 #endif
