@@ -1,18 +1,16 @@
 all: expr
 
-expr: expr_lexer.o expr_parser.o
+expr: expr.o
 	g++ -o $@ $^
 
-expr_lexer.o: expr_lexer.cpp
+expr.o: expr.cpp
 	g++ -c -o $@ $<
 
-expr_lexer.cpp: expr.l
+expr.cpp: expr.l
 	flex -o $@ $<
-
-expr_parse.o: expr_parser.cpp
-	g++ -c -o $@ $<
 
 clean:
 	rm -f *.o
-	rm -f expr_lexer.cpp
+	rm -f expr.cpp
+	rm -f expr.exe
 	rm -f expr

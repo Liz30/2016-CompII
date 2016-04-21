@@ -2,6 +2,7 @@
 
 %{
 
+#include <iostream>
 #include <string>
 #include "tokens.h"
 
@@ -34,3 +35,13 @@ LETTER [a-zA-Z]
 .   { printf("Simbolo no valido\n"); }
 
 %%
+
+int main(){
+  int token = yylex();
+
+  while (token != TK_EOF){
+    cout << token << endl;
+    token = yylex();
+  }
+  return 0;
+}
