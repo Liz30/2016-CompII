@@ -32,7 +32,7 @@ LETTER [a-zA-Z]
 \n  { line++; }
 {DIGIT}+ { inum = atoi(yytext); return TK_INT; }
 {DIGIT}+.{DIGIT}+ { fnum = atof(yytext); return TK_FLOAT; }
-{LETTER}({DIGIT}|{LETTER})* { id = yytext; return TK_ID; }
+{LETTER}({DIGIT}|{LETTER}|_)* { id = yytext; return TK_ID; }
 "//"[^\n]*
 <<EOF>> { return TK_EOF; }
 .   { merror = yytext; return TK_ERROR; }
