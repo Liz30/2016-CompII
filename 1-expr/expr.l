@@ -39,8 +39,22 @@ LETTER [a-zA-Z]
 int main(){
   int token = yylex();
 
-  while (token != TK_EOF){
-    cout << token << endl;
+  while (true){
+    cout <<endl << token ;
+
+    switch(token){
+      case TK_EQUAL: cout << " -> EQUAL  "; break;
+      case TK_ADD: cout << " -> ADD  "; break;
+      case TK_MULT: cout << " -> MULT  "; break;
+      case TK_OPENP: cout << " -> OPENP  "; break;
+      case TK_CLOSEP: cout << " -> CLOSEP  "; break;
+      case TK_SEMIC: cout << " -> SEMIC  "; break;
+      case TK_ASSIGN: cout << " -> ASSIGN  "; break;
+      case TK_NUM: cout << " -> NUM: "<<num; break;
+      case TK_ID: cout << " -> ID: "<<id; break;
+      case TK_EOF: cout << " -> EOF  "; return 0;
+    }
+
     token = yylex();
   }
   return 0;
