@@ -9,7 +9,7 @@
 using namespace std;
 
 string id;
-string merror, mcomment;
+string merror, mcomment, mtext;
 int inum;
 float fnum;
 int line = 0;
@@ -19,23 +19,31 @@ int line = 0;
 DIGIT [0-9]
 LETTER [a-zA-Z]
 
+%x expr
+
 %%
 
-"=" { return TK_EQUAL; }
-"+" { return TK_ADD; }
-"*" { return TK_MULT; }
-"(" { return TK_OPENP; }
-")" { return TK_CLOSEP; }
-";" { return TK_SEMIC; }
-"assign" { return TK_ASSIGN; }
-[ \t] /* Nada */
+"<?" { BEGIN(expr); return TK_PHPInit; }
+. { mtext = yytext; return TK_TEXT; }
 \n  { line++; }
-{DIGIT}+ { inum = atoi(yytext); return TK_INT; }
-{DIGIT}+.{DIGIT}+ { fnum = atof(yytext); return TK_FLOAT; }
-{LETTER}({DIGIT}|{LETTER}|_)* { id = yytext; return TK_ID; }
-"//"[^\n]*  { mcomment = yytext; return TK_COMMENT; }
+
+<expr>"=" { return TK_EQUAL; }
+<expr>"+" { return TK_ADD; }
+<expr>"*" { return TK_MULT; }
+<expr>"(" { return TK_OPENP; }
+<expr>")" { return TK_CLOSEP; }
+<expr>";" { return TK_SEMIC; }
+<expr>"assign" { return TK_ASSIGN; }
+<expr>[ \t] /* Nada */
+<expr>\n  { line++; }
+<expr>{DIGIT}+ { inum = atoi(yytext); return TK_INT; }
+<expr>{DIGIT}+.{DIGIT}+ { fnum = atof(yytext); return TK_FLOAT; }
+<expr>{LETTER}({DIGIT}|{LETTER}|_)* { id = yytext; return TK_ID; }
+<expr>"//"[^\n]*  { mcomment = yytext; return TK_COMMENT; }
+<expr>.   { merror = yytext; return TK_ERROR; }
+<expr>"?>" { BEGIN(INITIAL); return TK_PHPEnd; }
+
 <<EOF>> { return TK_EOF; }
-.   { merror = yytext; return TK_ERROR; }
 
 %%
 
@@ -43,7 +51,7 @@ int main(){
   int token = yylex();
 
   while (true){
-    cout << token ;
+    cout << line << " ... " << token ;
 
     switch(token){
       case TK_EQUAL: cout << " -> EQUAL  "; break;
@@ -59,6 +67,9 @@ int main(){
       case TK_FLOAT: cout << " -> FLOAT: "<<fnum; break;
       case TK_ERROR: cout << " -> Simbolo no valido: " << merror; break;
       case TK_COMMENT: cout << " -> COMMENT: "<< mcomment; break;
+      case TK_TEXT: cout << " -> TEXT: " << mtext; break;
+      case TK_PHPInit: cout << " -> PHP Init "; break;
+      case TK_PHPEnd: cout << " -> PHP End "; break;
     }
     cout << endl;
     token = yylex();
