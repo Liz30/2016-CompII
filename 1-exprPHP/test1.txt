@@ -1,0 +1,11 @@
+//Comentario de linea
+assign x  = 10;
+assign y = 20;
+assign z = 12;
+(x + y) * 3
+// gus fra ba
+/
+24.33
+num = 34.i
+id_45;
+// Comentario final
