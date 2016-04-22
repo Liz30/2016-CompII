@@ -8,8 +8,7 @@
 
 using namespace std;
 
-string id;
-string merror, mcomment, mtext;
+string id, merror, mcomment, mtext;
 int inum;
 float fnum;
 int line = 0;
@@ -24,7 +23,7 @@ LETTER [a-zA-Z]
 %%
 
 "<?" { BEGIN(expr); return TK_PHPInit; }
-. { mtext = yytext; return TK_TEXT; }
+.[^\n]* { mtext = yytext;  return TK_TEXT; }
 \n  { line++; }
 
 <expr>"=" { return TK_EQUAL; }
@@ -51,7 +50,7 @@ int main(){
   int token = yylex();
 
   while (true){
-    cout << line << " ... " << token ;
+    cout << "Linea: "<< line << "... Token: " << token ;
 
     switch(token){
       case TK_EQUAL: cout << " -> EQUAL  "; break;
