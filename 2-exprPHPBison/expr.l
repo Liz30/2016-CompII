@@ -8,9 +8,7 @@
 
 using namespace std;
 
-string id, merror, mcomment, mtext;
-int inum;
-float fnum;
+string mtext;
 int line = 0;
 
 %}
@@ -19,42 +17,41 @@ DIGIT [0-9]
 LETTER [a-zA-Z]
 
 %x expr_e
-%x text_e
 
 %%
 
-"<?" { BEGIN(expr_e); return TK_PHPInit; }
-.    { mtext += yytext; BEGIN(text_e); return TK_TEXTInit; }
-\n  { line++; }
-<<EOF>> { return TK_EOF; }
+"<?" { cout<<mtext; BEGIN(expr_e); mtext = ""; }
+.    { mtext += yytext;  }
+\n  { line++; mtext += yytext; }
+<<EOF>> { cout<<mtext; return EOF; }
 
-<text_e>"<?" { BEGIN (expr_e); return TK_PHPInit; }
-<text_e>.* { mtext += yytext; }
-<text_e>\n { line++; mtext += yytext; }
 
-<expr_e>"=" { return TK_EQUAL; }
-<expr_e>"+" { return TK_ADD; }
-<expr_e>"*" { return TK_MULT; }
-<expr_e>"(" { return TK_OPENP; }
-<expr_e>")" { return TK_CLOSEP; }
-<expr_e>";" { return TK_SEMIC; }
+<expr_e>"=" { return '='; }
+<expr_e>"+" { return '+'; }
+<expr_e>"*" { return '*'; }
+<expr_e>"-" { return '-'; }
+<expr_e>"/" { return '/'; }
+<expr_e>"(" { return '('; }
+<expr_e>")" { return ')'; }
 <expr_e>"assign" { return TK_ASSIGN; }
 <expr_e>[ \t] /* Nada */
 <expr_e>\n  { line++; }
-<expr_e>{DIGIT}+ { inum = atoi(yytext); return TK_INT; }
-<expr_e>{DIGIT}+.{DIGIT}+ { fnum = atof(yytext); return TK_FLOAT; }
-<expr_e>{LETTER}({DIGIT}|{LETTER}|_)* { id = yytext; return TK_ID; }
-<expr_e>"//"[^\n]*  { mcomment = yytext; return TK_COMMENT; }
-<expr_e>.   { merror = yytext; return TK_ERROR; }
-<expr_e>"?>" { BEGIN(INITIAL); return TK_PHPEnd; }
-
+<expr_e>{DIGIT}+ { yylval.num_t = atoi(yytext); return NUM; }
+<expr_e>{LETTER}({DIGIT}|{LETTER}|_)* { yylval.id_t = strdup(yytext); return ID; }
+<expr_e>"//"[^\n]*  /*{ printf("Comentario de Linea: %s\n", yytext); }*/
+<expr_e>"?>" {  BEGIN(INITIAL);  }
+<expr_e>.   { printf(" Linea: %d Simbolo no valido: %s\n", line, yytext); }
 
 %%
 
-int main(){
-  int token = yylex();
+int yyparse();
 
-  while (true){
+int main(){
+  yyparse();
+
+/*  int token = yylex();
+
+  while (token != TK_EOF){
     //cout << "Linea: "<< line << "... Token: " << token ;
 
     switch(token){
@@ -76,8 +73,9 @@ int main(){
       case TK_PHPInit: cout << mtext << "Linea: "<< line << "... Token: " << token << " -> PHP Init "; mtext=""; break;
       case TK_PHPEnd: cout << "Linea: "<< line << "... Token: " << token << " -> PHP End "; break;
     }
-    cout << endl;
+    //cout << endl;
+
     token = yylex();
   }
-  return 0;
+  //return 0; */
 }

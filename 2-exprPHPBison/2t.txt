@@ -1,29 +1,14 @@
-sdfdsafd
-fdsafdsaf
-dsfadsa
-fdsafsa
-ddfsa
-dsafdsafdas
-fdsafdsa
-fr32
-qr34
-
-erg
-dsaf
-FIN TXT
+Expresion:
 <?
-=
-// comm
-fdsfasd
-.
-45.6
-+
-<?
+  assign x = 10
+  assign y = 20
+  x + y // 30
+  10 - 5 // 5
+  40
+  44
+  .
+  assign z = y * x // 200
+  (z - y) // 180
 ?>
-<?
-()
-fdsfdsafd
-?>
-543
-fde
-54.654.43
+x + y
+FIN
