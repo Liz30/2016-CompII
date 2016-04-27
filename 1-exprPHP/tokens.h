@@ -15,8 +15,9 @@
 #define TK_FLOAT    20
 #define TK_ERROR    21
 #define TK_COMMENT  22
-#define TK_TEXT     23
+#define TK_TEXTInit 23
 #define TK_PHPInit  24
 #define TK_PHPEnd   25
+#define TK_TEXTEnd  26
 
 #endif
