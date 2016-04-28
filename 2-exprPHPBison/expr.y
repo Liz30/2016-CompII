@@ -25,7 +25,7 @@ map<string, int> vars;
 
 %token<num_t> NUM
 %token<id_t> ID
-%token TK_ASSIGN
+%token TK_ASSIGN TK_TEXT
 %type<num_t> expr term factor
 
 %%
@@ -44,6 +44,7 @@ st: TK_ASSIGN ID '=' expr    {
                           vars[id] = $4;
                         }
     | expr              { printf("%d\n", $1); }
+    | TK_TEXT
 ;
 
 expr: expr '+' term { $$ = $1 + $3; }

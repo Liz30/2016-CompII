@@ -21,11 +21,10 @@ LETTER [a-zA-Z]
 %%
 
 "<?" { cout<<mtext; BEGIN(expr_e); mtext = ""; }
-.    { mtext += yytext;  }
+.    { mtext += yytext; return TK_TEXT; }
 \n  { line++; mtext += yytext; }
-<<EOF>> { cout<<mtext; return EOF; }
 
-
+<expr_e><<EOF>> { printf("Se esperaba simbolo de cierre '?>'\n"); return EOF; }
 <expr_e>"=" { return '='; }
 <expr_e>"+" { return '+'; }
 <expr_e>"*" { return '*'; }
@@ -41,6 +40,8 @@ LETTER [a-zA-Z]
 <expr_e>"//"[^\n]*  /*{ printf("Comentario de Linea: %s\n", yytext); }*/
 <expr_e>"?>" {  BEGIN(INITIAL);  }
 <expr_e>.   { printf(" Linea: %d Simbolo no valido: %s\n", line, yytext); }
+
+<<EOF>> { cout<<mtext; return EOF; }
 
 %%
 

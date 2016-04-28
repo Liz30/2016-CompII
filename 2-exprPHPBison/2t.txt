@@ -10,5 +10,18 @@ Expresion:
   assign z = y * x // 200
   (z - y) // 180
 ?>
-x + y
-FIN
+x + y como texto
+FIN BLOQUE1
+INICIO BLOQUE1
+<?
+  assign x = 10
+  assign y = 20
+  x + y // 30
+  10 - 5 // 5
+  40
+  44
+  .
+  assign z = y * x // 200
+  (z - y) // 180
+?>
+FIN BLOQUE2
