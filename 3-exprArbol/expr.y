@@ -6,6 +6,8 @@
 using namespace std;
 
 int yylex();
+extern int line;
+extern char* mtext;
 
 void yyerror(const char *str)
 {
@@ -25,26 +27,16 @@ map<string, int> vars;
 
 %token<num_t> NUM
 %token<id_t> ID
-%token TK_ASSIGN TK_TEXT TK_CodInit TK_CodEnd
+%token TK_ASSIGN TK_TEXT TK_ERROR
 %type<num_t> expr term factor
-%type<id_t> text_list
 
 %%
 
-input: text_list code_list
-      | input
+input: input text_list list_st
       |
 ;
 
-code_list: TK_CodInit list_st TK_CodEnd
-          |
-;
-
-text_list: TK_TEXT {
-                      string txt = $1;
-                      free($1);
-                      printf("%S\n", txt);}
-      |
+text_list:  TK_TEXT { printf("%s\n", mtext); }
 ;
 
 list_st:  list_st st
@@ -74,7 +66,7 @@ factor: '(' expr ')'    { $$ = $2; }
         | NUM           { $$ = $1; }
         | ID            {
                             string id = $1;
-
+                            //printf("ID: %s\n", $1);
                             free($1);
                             $$ = vars[id];
                         }

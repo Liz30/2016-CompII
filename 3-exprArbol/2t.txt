@@ -10,9 +10,8 @@ Expresion:
   assign z = y * x // 200
   (z - y) // 180
 ?>
-x + y como texto
-FIN BLOQUE1
-INICIO BLOQUE1
+Fin Bloque 1
+Inicio Bloque2
 <?
   assign x = 10
   assign y = 20
