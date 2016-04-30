@@ -1,4 +1,4 @@
-Expresion:
+Expression:
 <?
   assign x = 10
   assign y = 20
@@ -8,6 +8,7 @@ Expresion:
   44
   .
   assign z = y * x // 200
+  z
   (z - y) // 180
 ?>
 Fin Bloque 1
@@ -24,3 +25,16 @@ Inicio Bloque2
   (z - y) // 180
 ?>
 FIN BLOQUE2
+Inicio Bloque3
+<?
+  assign x = 10
+  assign y = 20
+  x + y // 30
+  10 - 5 // 5
+  40
+  44
+  .
+  assign z = y * x // 200
+  (z - y) // 180
+?>
+FIN BLOQUE3

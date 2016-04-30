@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <string>
+#include "arbol.h"
 #include "tokens.h"
 
 using namespace std;
@@ -38,13 +39,18 @@ LETTER [a-zA-Z]
 <expr_e>{LETTER}({DIGIT}|{LETTER}|_)* { yylval.id_t = strdup(yytext); return ID; }
 <expr_e>"//"[^\n]*
 <expr_e>"?>" { BEGIN(INITIAL); mtext=""; }
-<expr_e>.   /*{ printf(" Linea: %d Simbolo no valido: %s\n", line, yytext); }*/
-
+<expr_e>.  /* { printf(" Linea: %d Simbolo no valido: %s\n", line, yytext); }*/
 
 %%
 
+extern Statement *input;
 int yyparse();
 
 int main(){
+    input = 0;
     yyparse();
+
+    if(input!=0){
+        input->execute();
+    }
 }

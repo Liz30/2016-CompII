@@ -1,7 +1,10 @@
 all: expr
 
-expr: expr_p.o expr_l.o
+expr: arbol.o expr_p.o expr_l.o 
 	g++ -o $@ $^
+
+arbol.o: arbol.cpp arbol.h
+	g++ -c -o $@ $<
 
 expr_l.o: expr_l.cpp
 	g++ -c -o $@ $<
