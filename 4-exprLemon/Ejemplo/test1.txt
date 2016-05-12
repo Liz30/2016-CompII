@@ -1,0 +1,10 @@
+//Comentario de linea
+<?
+assign x  = 10
+assign y = 20
+assign z = 12
+// Otro comentario
+(x + y) * 3
+// gus fra ba
+?>
+FIN TEXTO
