@@ -12,8 +12,7 @@ using namespace std;
 
 string mtext;
 int line = 0;
-int value;
-string id;
+
 
 #define YY_DECL int nextToken(struct TokenInfo *info)
 
@@ -48,7 +47,7 @@ LETTER [a-zA-Z]
 <expr_e>{LETTER}({DIGIT}|{LETTER}|_)* { info->lexem = yytext; return TK_ID; }
 <expr_e>"//"[^\n]*
 <expr_e>"?>" { BEGIN(INITIAL); return TK_END;}
-<expr_e>.   /*{ printf(" Linea: %d Simbolo no valido: %s\n", line, yytext); }*/
+<expr_e>.   { printf(" Linea: %d Simbolo no valido: %s\n", line, yytext); }
 <expr_e><<EOF>> { return TK_EOF; }
 
 .*    { info->lexem=yytext; return TK_TEXT; }
