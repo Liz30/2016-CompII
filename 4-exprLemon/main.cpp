@@ -22,14 +22,10 @@ int main(){
 
     if (token == TK_TEXT){
         string bloque_text;
-        cout << token <<endl;
         while (token == TK_TEXT){
             bloque_text += ti->lexem;
             token=nextToken(ti);
-            cout << token <<endl;
         }
-        cout << token <<endl;
-        cout << " Fin WHILE "<<endl;
         struct TokenInfo *tii = new TokenInfo;
         tii->lexem = bloque_text;
         Parse(parser, TK_TEXT, tii);
@@ -41,7 +37,7 @@ int main(){
     ti = new TokenInfo;
     token = nextToken(ti);
   }
-  Parse(parser, TK_EOF, ti);
+  //Parse(parser, TK_EOF, ti);
   ParseFree(parser, free);
   return 0;
 }
