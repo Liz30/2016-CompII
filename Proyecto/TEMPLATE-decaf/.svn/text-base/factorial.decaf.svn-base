@@ -1,0 +1,21 @@
+class Factorial
+{
+	void main()
+	{
+		int x;
+
+		x = factorial(6);
+
+		print "Factorial de ""6"" = ", x;
+	}
+
+	// Funcion que calcula el factorial
+	int factorial(int n)
+	{
+		if (n == 0) {
+			return (1);
+		} else {
+			return n * factorial(n-1);
+		}
+	}
+}
