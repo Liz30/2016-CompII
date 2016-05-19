@@ -1,0 +1,45 @@
+Expresion:
+<?
+  assign x = 10;
+  assign y = 20;
+  print x + y; // 30
+  print 10 - 5; // 5
+  print 40;
+  print 44;
+
+  assign z = y * x; // 200
+  print (z - y); // 180
+?>
+Esta es una prueba de la sentencia IF
+<?
+//Asignando las variables
+assign x = 10;
+assign y = 20;
+assign z = 12;
+
+if (z < y) {
+?>
+"x" es menor a "y" : x=<? print x; ?> y=<? print y; ?>
+<?
+} else { ?>
+"x" es mayor a "y" : x=<? print x; ?> y=<? print y; ?>
+<? } // Fin del If
+?>
+========================
+Fin de la prueba del IF
+Esta es una prueba de la sentencia WHILE
+<?
+//Asignando las variables
+assign x = 10;
+assign y = 20;
+assign i = 0;
+
+while (i < y) {
+?>
+    i = <? print i; ?>
+<?
+    assign i = i + 1;
+} // Fin del WHILE
+?>
+========================
+Fin de la prueba del WHILE

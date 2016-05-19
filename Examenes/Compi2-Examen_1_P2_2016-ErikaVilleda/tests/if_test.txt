@@ -1,0 +1,17 @@
+Esta es una prueba de la sentencia IF
+<?
+//Asignando las variables
+assign x = 10;
+assign y = 20;
+assign z = 12;
+
+if (x < y) {
+?>
+"x" es menor a "y" : x=<? print x; ?> y=<? print y; ?>
+<?
+} else { ?>
+"x" es mayor a "y" : x=<? print x; ?> y=<? print y; ?>
+<? } // Fin del If
+?>
+========================
+Fin de la prueba del IF

@@ -1,0 +1,16 @@
+Esta es una prueba de la sentencia WHILE
+<?
+//Asignando las variables
+assign x = 10;
+assign y = 20;
+assign i = 0;
+
+while (i < y) {
+?>
+    i = <? print i; ?>
+<?
+    assign i = i + 1;
+} // Fin del WHILE
+?>
+========================
+Fin de la prueba del WHILE
