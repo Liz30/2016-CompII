@@ -17,6 +17,9 @@ ClassDef *class_def;
 
 int main(int argc, char *argv[])
 {
+/*	cout <<  "Param: " << argc << endl;
+	cout << argv[0] << endl;
+	cout << argv[1] << endl; */
 	if (argc > 0) {
 		++argv, --argc; /* El primer argumento es el nombre del programa */
 		in.open(argv[0], ifstream::in|ifstream::binary);

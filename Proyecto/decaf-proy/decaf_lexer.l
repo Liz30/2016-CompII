@@ -1,5 +1,4 @@
 %option noyywrap
-%option bison-bridge bison-locations
 
 %{
 
@@ -12,6 +11,8 @@
 #include "ClassDef.h"
 #include "Util.h"
 #include "decaf_tokens.h"
+
+#define YY_DECL int nextToken(struct TokenInfo *&p_info)
 
 #define YY_INPUT(buf,result,max_size)  {\
     result = GetNextChar(buf, max_size); \
@@ -88,5 +89,3 @@ LETTER   [a-zA-Z]
 .           printf( "%d:Caracter no reconocido: #%d, %s\n", yylloc->last_line, yytext[0], yytext );
 
 %%
-
-
