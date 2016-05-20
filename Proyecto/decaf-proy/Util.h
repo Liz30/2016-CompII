@@ -10,8 +10,31 @@
 
 #include <sstream>
 #include <list>
+#include <string>
+#include "Expression.h"
 
 using namespace std;
+
+/* Added */
+struct TokenInfo {
+    int tokenType;
+    string strValue;
+    int intValue;
+    ExpressionOperator	oper;
+
+    TokenInfo(int tokenType, string strValue) {
+        this->tokenType = tokenType;
+        this->strValue = strValue;
+    }
+};
+
+struct YYLTYPE {
+    int first_line;
+    int first_column;
+    int last_line;
+    int last_column;
+};
+////////////////
 
 /*
  * Libera una lista.  El tipo T debe ser un apuntador.
@@ -57,7 +80,7 @@ string inline ListToString(list<T> *l, string separator, bool include_last_separ
 	return out.str();
 }
 
-struct YYLTYPE;
+typedef struct YYLTYPE YYLTYPE;
 
 int GetNextChar(char *b, int maxBuffer);
 void BeginToken(char *t, struct YYLTYPE *yylloc);

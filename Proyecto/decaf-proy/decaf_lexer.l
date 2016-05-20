@@ -2,23 +2,25 @@
 
 %{
 
-#include <math.h>
-#include "Value.h"
-#include "Variable.h"
-#include "Expression.h"
-#include "Statement.h"
-#include "MethodDef.h"
-#include "ClassDef.h"
-#include "Util.h"
-#include "decaf_tokens.h"
+    #include <math.h>
+    #include "Value.h"
+    #include "Variable.h"
+    #include "Expression.h"
+    #include "Statement.h"
+    #include "MethodDef.h"
+    #include "ClassDef.h"
+    #include "Util.h"
+    #include "decaf_tokens.h"
 
-#define YY_DECL int nextToken(struct TokenInfo *&p_info)
+    #define YY_DECL int nextToken(struct TokenInfo *&p_info)
 
-#define YY_INPUT(buf,result,max_size)  {\
-    result = GetNextChar(buf, max_size); \
-    if (  result <= 0  ) \
-      result = YY_NULL; \
-    }
+    #define YY_INPUT(buf,result,max_size)  {\
+        result = GetNextChar(buf, max_size); \
+        if (  result <= 0  ) \
+          result = YY_NULL; \
+        }
+
+    YYLTYPE *yylloc;
 
 %}
 
@@ -42,47 +44,47 @@ LETTER   [a-zA-Z]
 "int"		{ BeginToken(yytext, yylloc); return K_INT; }
 "void"		{ BeginToken(yytext, yylloc); return K_VOID; }
 "boolean"	{ BeginToken(yytext, yylloc); return K_BOOLEAN; }
-"||"		{ BeginToken(yytext, yylloc); yylval->oper = OpOr; return BOOL_OP_OR; }
-"&&"		{ BeginToken(yytext, yylloc); yylval->oper = OpAnd; return BOOL_OP_AND; }
-">>"		{ BeginToken(yytext, yylloc); yylval->oper = OpRShift; return BIT_SHIFT_OP; }
-"<<"		{ BeginToken(yytext, yylloc); yylval->oper = OpLShift; return BIT_SHIFT_OP; }
-"rot"		{ BeginToken(yytext, yylloc); yylval->oper = OpRot; return BIT_SHIFT_OP; }
-">"			{ BeginToken(yytext, yylloc); yylval->oper = OpGT; return REL_OP; }
-"<"			{ BeginToken(yytext, yylloc); yylval->oper = OpLT; return REL_OP; }
-">="		{ BeginToken(yytext, yylloc); yylval->oper = OpGTE; return REL_OP; }
-"<="		{ BeginToken(yytext, yylloc); yylval->oper = OpLTE; return REL_OP; }
-"=="		{ BeginToken(yytext, yylloc); yylval->oper = OpEq; return REL_OP; }
-"!="		{ BeginToken(yytext, yylloc); yylval->oper = OpNotEq; return REL_OP; }
-"+"			{ BeginToken(yytext, yylloc); yylval->oper = OpAdd; return ARITH_OP_SUM; }
-"-"			{ BeginToken(yytext, yylloc); yylval->oper = OpSub; return ARITH_OP_SUM; }
-"*"			{ BeginToken(yytext, yylloc); yylval->oper = OpMul; return ARITH_OP_MUL; }
-"/"			{ BeginToken(yytext, yylloc); yylval->oper = OpDiv; return ARITH_OP_MUL; }
-"%"			{ BeginToken(yytext, yylloc); yylval->oper = OpMod; return ARITH_OP_MUL; }
+"||"		{ BeginToken(yytext, yylloc); p_info->oper = OpOr; return BOOL_OP_OR; }
+"&&"		{ BeginToken(yytext, yylloc); p_info->oper = OpAnd; return BOOL_OP_AND; }
+">>"		{ BeginToken(yytext, yylloc); p_info->oper = OpRShift; return BIT_SHIFT_OP; }
+"<<"		{ BeginToken(yytext, yylloc); p_info->oper = OpLShift; return BIT_SHIFT_OP; }
+"rot"		{ BeginToken(yytext, yylloc); p_info->oper = OpRot; return BIT_SHIFT_OP; }
+">"			{ BeginToken(yytext, yylloc); p_info->oper = OpGT; return REL_OP; }
+"<"			{ BeginToken(yytext, yylloc); p_info->oper = OpLT; return REL_OP; }
+">="		{ BeginToken(yytext, yylloc); p_info->oper = OpGTE; return REL_OP; }
+"<="		{ BeginToken(yytext, yylloc); p_info->oper = OpLTE; return REL_OP; }
+"=="		{ BeginToken(yytext, yylloc); p_info->oper = OpEq; return REL_OP; }
+"!="		{ BeginToken(yytext, yylloc); p_info->oper = OpNotEq; return REL_OP; }
+"+"			{ BeginToken(yytext, yylloc); p_info->oper = OpAdd; return ARITH_OP_SUM; }
+"-"			{ BeginToken(yytext, yylloc); p_info->oper = OpSub; return ARITH_OP_SUM; }
+"*"			{ BeginToken(yytext, yylloc); p_info->oper = OpMul; return ARITH_OP_MUL; }
+"/"			{ BeginToken(yytext, yylloc); p_info->oper = OpDiv; return ARITH_OP_MUL; }
+"%"			{ BeginToken(yytext, yylloc); p_info->oper = OpMod; return ARITH_OP_MUL; }
 \"([^"]|\"\")*\"	{
 						BeginToken(yytext, yylloc);
-						yylval->string = strdup(yytext);
+						p_info->strValue = yytext;
 						return STRING_CONSTANT;
 					}
 {DIGIT}+		{
 					BeginToken(yytext, yylloc);
-					yylval->integer = atoi(yytext);
+					p_info->intValue = atoi(yytext);
 					return INT_CONSTANT;
 				}
 (_|{LETTER})(_|{LETTER}|{DIGIT})*	{
 										BeginToken(yytext, yylloc);
-										yylval->string = strdup(yytext);
+										p_info->strValue = yytext;
 										return ID;
 									}
-";"		{ BeginToken(yytext, yylloc); return ';'; }
-","		{ BeginToken(yytext, yylloc); return ','; }
-"("		{ BeginToken(yytext, yylloc); return '('; }
-")"		{ BeginToken(yytext, yylloc); return ')'; }
-"{"		{ BeginToken(yytext, yylloc); return '{'; }
-"}"		{ BeginToken(yytext, yylloc); return '}'; }
-"["		{ BeginToken(yytext, yylloc); return '['; }
-"]"		{ BeginToken(yytext, yylloc); return ']'; }
-"="		{ BeginToken(yytext, yylloc); return '='; }
-"!"		{ BeginToken(yytext, yylloc); return '!'; }
+";"		{ BeginToken(yytext, yylloc); return T_SEMICOLON; }
+","		{ BeginToken(yytext, yylloc); return T_COMMA; }
+"("		{ BeginToken(yytext, yylloc); return T_OPAR; }
+")"		{ BeginToken(yytext, yylloc); return T_CPAR; }
+"{"		{ BeginToken(yytext, yylloc); return T_OSET; }
+"}"		{ BeginToken(yytext, yylloc); return T_CSET; }
+"["		{ BeginToken(yytext, yylloc); return T_OBRACKET; }
+"]"		{ BeginToken(yytext, yylloc); return T_CBRACKETS; }
+"="		{ BeginToken(yytext, yylloc); return T_ASSIGN; }
+"!"		{ BeginToken(yytext, yylloc); return T_NOT; }
 "//".*"\n"	{ BeginToken(yytext, yylloc); };
 [ \t]+		{ BeginToken(yytext, yylloc); }
 "\n"		{ yylloc->last_line++; yylloc->first_column = 0; }

@@ -12,6 +12,7 @@ static int errors = 0;
 using namespace std;
 
 int yyparse();
+int nextToken(struct TokenInfo *&p_info);
 
 ClassDef *class_def;
 

@@ -89,9 +89,9 @@ void BeginToken(char *t, YYLTYPE *yylloc)
 	token_next_start = buffer_pos;
 
 	/* Location for bison --------------------------------------------*/
+	/* YYLTYPE declared in Util.h this way lemon can use this fields */
 	yylloc->first_line = current_line;
 	yylloc->first_column = token_start;
 	yylloc->last_line = current_line;
 	yylloc->last_column = token_start + token_length - 1;
 }
-

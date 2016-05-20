@@ -24,7 +24,9 @@ ${DECAF_LEXER}:	decaf_lexer.l ${DECAF_TOKENS}
 	flex -o $@ $<
 
 ${DECAF_GRAMMAR} ${DECAF_TOKENS}: decaf_grammar.y
-	bison --defines=${DECAF_TOKENS} -r all -o ${DECAF_GRAMMAR} $<
+	lemon -q -Tlempar.c $<
+	mv ${TARGET}.c ${DECAF_GRAMMAR}
+	mv ${TARGET}.h ${DECAF_TOKENS}
 
 clean::
 	-rm -f *~ *.o ${TARGET} ${DECAF_LEXER} ${DECAF_GRAMMAR} ${DECAF_TOKENS} ${DECAF_EXE} decaf_grammar.output

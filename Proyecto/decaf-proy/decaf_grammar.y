@@ -12,8 +12,9 @@
 #define YYERROR_VERBOSE 1
 
 extern ClassDef *class_def;
+extern YYLTYPE *yylloc;
 
-int yylex(YYSTYPE*, YYLTYPE*);
+//int yylex(YYSTYPE*, YYLTYPE*); //YYSTYPE is from bison, is not necessary define it.
 void yyerror(const char *message);
 
 VariableDefList *SetType(VariableDefList *list, Type type)
@@ -145,19 +146,19 @@ field_decl
 
 var_list:
 		var_list ',' var	{ $$ = $1; $$->push_back($3); }
-		| var			{ 
+		| var			{
 						$$ = new VariableDefList;
 						$$->push_back($1);
 					}
 ;
 
-var	:	 ID optional_initialization	{ 
+var	:	 ID optional_initialization	{
 							$$ = new VariableDef($1, @1.last_line, @1.first_column);
 							$$->initial_value = $2;
 						}
 
-		| ID '[' INT_CONSTANT ']'	{ 
-							$$ = new VariableDef($1, @1.last_line, @1.first_column); 
+		| ID '[' INT_CONSTANT ']'	{
+							$$ = new VariableDef($1, @1.last_line, @1.first_column);
 							$$->is_array_def = true;
 							$$->array_dimension = $3;
 						}
@@ -172,14 +173,14 @@ optional_initialization:
 method_decl
 	:	return_type ID '(' opt_parameter_decl_list ')' block
 		{
-			$$ = new MethodDef($2); 
+			$$ = new MethodDef($2);
 			$$->method_return_type = $1;
 			$$->method_parameters = $4;
 			$$->method_body =  $6;
 		}
 ;
 
-return_type:	
+return_type:
 		type		{ $$ = $1; }
 		| K_VOID	{ $$ = Void; }
 ;
@@ -189,26 +190,26 @@ opt_parameter_decl_list:
 			| /*Nada*/		{ $$ = 0; }
 ;
 
-parameter_decl_list:	
+parameter_decl_list:
 			parameter_decl_list ',' parameter_decl	{
 									$$ = $1;
 									$$->push_back($3);
 								}
-			| parameter_decl			{ 
+			| parameter_decl			{
 									$$ = new ParameterDefList;
 									$$->push_back($1);
 								}
 ;
 
-parameter_decl:	
+parameter_decl:
 		type ID		{ $$ = new ParameterDef($2, $1); }
 ;
 
-block	
+block
 	:	'{' opt_var_decl_list opt_statement_list '}'
 		{ $$ = new BlockStatement($2, $3 ); }
 ;
-	
+
 opt_var_decl_list:	var_decl_list	{ $$ = $1; }
 			| /*Nada*/	{ $$ = 0; }
 ;
@@ -224,12 +225,12 @@ var_decl_list:	var_decl_list var_decl	{
 					}
 		| var_decl		{ $$ = $1; }
 ;
-		
-var_decl:	
+
+var_decl:
 		type var_list ';' { $$ = SetType($2, $1); }
 ;
 
-type	:	
+type	:
 		K_INT		{ $$ = Int; }
 		| K_BOOLEAN	{ $$ = Boolean; }
 ;
@@ -238,7 +239,7 @@ statement_list:
 		statement_list statement	{ $$ = $1; $$->push_back($2); }
 		| statement			{ $$ = new StatementList; $$->push_back($1); }
 ;
-		
+
 statement
 	:	assign ';'			{ $$ = $1; }
 		| method_call ';'		{ $$ = $1; }
@@ -250,13 +251,13 @@ statement
 		| continue_statement ';'	{ $$ = $1; }
 		| block 			{ $$ = $1; }
 ;
-		
+
 assign	:
 		lvalue '=' expr { $$ = new AssignmentStatement($1, $3, @1.first_line, @1.first_column); };
-		
+
 
 method_call:
-		method_name '(' opt_method_call_argument_list ')'	{ $$ = new MethodCallStatement($1, $3, @1.first_line, @1.first_column); }	
+		method_name '(' opt_method_call_argument_list ')'	{ $$ = new MethodCallStatement($1, $3, @1.first_line, @1.first_column); }
 		| K_PRINT print_argument_list				{ $$ = new MethodCallStatement("print", $2, @1.first_line, @1.first_column); }
 		| K_READ read_argument_list				{ $$ = new MethodCallStatement("read", $2, @1.first_line, @1.first_column); }
 ;
@@ -265,7 +266,7 @@ method_name
 	:	ID	{ $$ = $1; }
 ;
 
-opt_method_call_argument_list:	
+opt_method_call_argument_list:
 				method_call_argument_list	{ $$ = $1; }
 				| /*Nada*/			{ $$ = 0; }
 ;
@@ -275,7 +276,7 @@ method_call_argument_list:
 				| expr					{ $$ = new ExpressionList; $$->push_back($1); }
 ;
 
-print_argument_list: 
+print_argument_list:
 			print_argument_list ',' print_argument	{ $$ = $1; $$->push_back($3); }
 			| print_argument			{ $$ = new ExpressionList; $$->push_back($1); }
 ;
@@ -289,15 +290,15 @@ read_argument_list:
 			read_argument_list ',' lvalue	{ $$ = $1; $$->push_back($3); }
 			| lvalue			{ $$ = new ExpressionList; $$->push_back($1); }
 ;
-		
-lvalue	
+
+lvalue
 	:	ID opt_array_dimension	{ $$ = new LValueExpression($1, $2); }
 ;
 
-opt_array_dimension: 
+opt_array_dimension:
 			'[' expr ']'	{ $$ = $2; }
 			| /*Nada*/	{ $$ = 0; }
-;		
+;
 
 if_statement:
 		K_IF '(' expr ')' block opt_else	{ $$ = new IfStatement($3, $5, $6, @1.first_line, @1.first_column); }
@@ -339,7 +340,7 @@ opt_expr:
 		| /*Nada*/	{ $$ = 0; }
 ;
 
-expr	:	
+expr	:
 		expr BOOL_OP_OR bool_term	{ $$ = new BinaryExpression($1, $3, $2); }
 		| bool_term			{ $$ = $1; }
 ;
@@ -348,7 +349,7 @@ bool_term:	bool_term BOOL_OP_AND relational_expr	{ $$ = new BinaryExpression($1,
 		| relational_expr			{ $$ = $1; }
 ;
 
-relational_expr: 
+relational_expr:
 			relational_expr  REL_OP bit_shift_expr	{ $$ = new BinaryExpression($1, $3, $2); }
 			| bit_shift_expr			{ $$ = $1; }
 ;
@@ -367,7 +368,7 @@ arith_term:	arith_term ARITH_OP_MUL	factor			{ $$ = new BinaryExpression($1, $3,
 		| factor					{ $$ = $1; }
 ;
 
-factor:	
+factor:
 		'!' factor					{ $$ = new UnaryExpression($2, OpNot); }
 		| ARITH_OP_SUM factor				{ $$ = new UnaryExpression($2, $1); }
 		| lvalue					{ $$ = $1; }
@@ -375,13 +376,13 @@ factor:
 		| constant					{ $$ = $1; }
 		| '(' expr ')'					{ $$ = $2; }
 ;
-		
+
 constant:	INT_CONSTANT 	{ $$ = new ConstantExpression($1); }
 		| CHAR_CONSTANT { $$ = new ConstantExpression($1); }
 		| REAL_CONSTANT { $$ = new ConstantExpression($1); }
 		| bool_constant { $$ = $1; }
-; 
-		
+;
+
 bool_constant:
 		K_TRUE		{ $$ = new ConstantExpression(true); }
 		| K_FALSE	{ $$ = new ConstantExpression(false); }
