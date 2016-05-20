@@ -10,6 +10,17 @@ Expresion:
   assign z = y * x; // 200
   print (z - y); // 180
 ?>
+Este es un archivo de prueba
+Valor de la expresion: <?
+//Comentario de linea
+assign x  = 10;
+assign y = 20;
+assign z = 12;
+print (x + y) * 3;
+// Comentario final
+?>
+Mas texto!!!!
+
 Esta es una prueba de la sentencia IF
 <?
 //Asignando las variables
