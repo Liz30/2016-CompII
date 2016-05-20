@@ -80,9 +80,22 @@ string inline ListToString(list<T> *l, string separator, bool include_last_separ
 	return out.str();
 }
 
+template <typename T>
+string convertToString(T value)
+{
+    std::ostringstream os ;
+    os << value ;
+    return os.str() ;
+}
+
 typedef struct YYLTYPE YYLTYPE;
 
 int GetNextChar(char *b, int maxBuffer);
 void BeginToken(char *t, struct YYLTYPE *yylloc);
+
+string getTokenString(int token, TokenInfo *info);
+TokenInfo *allocTokenInfo(int tokenType, string strValue);
+void freeTokenInfo(TokenInfo *ti);
+void reportError(const char *format, ...);
 
 #endif /* UTIL_H_ */

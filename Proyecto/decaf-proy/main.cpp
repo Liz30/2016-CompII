@@ -15,6 +15,7 @@ int yyparse();
 int nextToken(struct TokenInfo *&p_info);
 
 ClassDef *class_def;
+string getTokenString(int token, TokenInfo *info);
 
 int main(int argc, char *argv[])
 {
@@ -45,9 +46,20 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-void yyerror(const char *message)
+/*void yyerror(const char *message)
 {
 	errors++;
 
 	fprintf(stderr, "%d:%s\n", current_line, message);
+}*/
+
+void reportError(const char *format, ...)
+{
+    va_list args;
+
+    error++;
+
+    va_start(args, format);
+    vprintf(format, args);
+    va_end(args);
 }

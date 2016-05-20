@@ -82,7 +82,7 @@ LETTER   [a-zA-Z]
 "{"		{ BeginToken(yytext, yylloc); return T_OSET; }
 "}"		{ BeginToken(yytext, yylloc); return T_CSET; }
 "["		{ BeginToken(yytext, yylloc); return T_OBRACKET; }
-"]"		{ BeginToken(yytext, yylloc); return T_CBRACKETS; }
+"]"		{ BeginToken(yytext, yylloc); return T_CBRACKET; }
 "="		{ BeginToken(yytext, yylloc); return T_ASSIGN; }
 "!"		{ BeginToken(yytext, yylloc); return T_NOT; }
 "//".*"\n"	{ BeginToken(yytext, yylloc); };
@@ -91,3 +91,44 @@ LETTER   [a-zA-Z]
 .           printf( "%d:Caracter no reconocido: #%d, %s\n", yylloc->last_line, yytext[0], yytext );
 
 %%
+
+string getTokenString(int token, TokenInfo *info)
+{
+    string tokenName;
+
+    switch (token) {
+    case T_EOF: tokenName = "end of input"; break;
+    case T_TEXT: tokenName = "text block"; break;
+    case K_IF: tokenName = "K_IF"; break;
+    case K_ELSE: tokenName = "K_ELSE"; break;
+    case K_WHILE:tokenName = "K_WHILE"; break;
+    case K_ASSIGN:tokenName = "K_ASSIGN"; break;
+    case K_PRINT: tokenName = "K_PRINT"; break;
+
+    case T_LESS:
+    case T_LSET:
+    case T_RSET:
+    case T_EQUAL:
+    case T_ADD:
+    case T_SUB:
+    case T_MULT:
+    case T_DIV:
+    case T_LPAREN:
+    case T_RPAREN:
+    case T_SEMICOLON:
+        tokenName = "symbol";
+        break;
+
+    case ID: tokenName = "identifier"; break;
+    case INT_CONSTANT: tokenName = "number"; break;
+    default:
+        tokenName = ::convertToString(token);
+    }
+
+    string result = tokenName;
+
+    if (info != NULL)
+        result += " '" + info->strValue + "'";
+
+    return result;
+}

@@ -1,389 +1,333 @@
-%{
+%include {
+		#include <stdio.h>
+		#include <string>
+		#include "Value.h"
+		#include "Variable.h"
+		#include "Expression.h"
+		#include "Statement.h"
+		#include "MethodDef.h"
+		#include "ClassDef.h"
+		#include "decaf_tokens.h"
 
-#include <stdio.h>
-#include "Value.h"
-#include "Variable.h"
-#include "Expression.h"
-#include "Statement.h"
-#include "MethodDef.h"
-#include "ClassDef.h"
-#include "decaf_tokens.h"
+		extern ClassDef *class_def;
+		extern YYLTYPE *yylloc;
 
-#define YYERROR_VERBOSE 1
+		//int yylex(YYSTYPE*, YYLTYPE*); //YYSTYPE is from bison, is not necessary define it.
+		//void yyerror(const char *message);
+		void reportError(const char *format, ...);
 
-extern ClassDef *class_def;
-extern YYLTYPE *yylloc;
-
-//int yylex(YYSTYPE*, YYLTYPE*); //YYSTYPE is from bison, is not necessary define it.
-void yyerror(const char *message);
-
-VariableDefList *SetType(VariableDefList *list, Type type)
-{
-	VariableDefList::iterator it = list->begin();
-
-	while (it != list->end()) {
-		VariableDef *var = *it;
-
-		var->variable_type = type;
-		it++;
-	}
-
-	return list;
+		VariableDefList *SetType(VariableDefList *list, Type type)
+		{
+			VariableDefList::iterator it = list->begin();
+			while (it != list->end()) {
+				VariableDef *var = *it;
+				var->variable_type = type;
+				it++;
+			}
+			return list;
+		}
 }
 
-%}
+%token_type {TokenInfo *}
+%default_type {TokenInfo *}
 
 %union {
-	Expression		*expression;
-	Statement		*statement;
-	VariableDef		*variable_def;
-	MethodDef		*method_def;
-	ParameterDef		*parameter_def;
-	ParameterDefList	*parameter_def_list;
-	VariableDefList		*variable_def_list;
-	StatementList		*statement_list;
-	MethodDefList		*method_def_list;
-	ClassDef		*class_def;
-	Type 			type;
 	ExpressionOperator	oper;
-	ExpressionList		*expression_list;
 	ResultValue		constant;
 	LValue			lvalue;
-	char			*string;
 	int			integer;
 	bool			boolean;
 }
 
-%locations
-%pure_parser
+%type statement {Statement*}
+%type assign {Statement*}
+%type method_call {Statement*}
+%type if_statement {Statement*}
+%type while_statement {Statement*}
+%type for_statement {Statement*}
+%type return_statement {Statement*}
+%type break_statement {Statement*}
+%type continue_statement {Statement*}
+%type block{Statement*}
+%type for_assignment_list {Statement*}
+%type opt_else {Statement*}
 
-%token<string> ID "'identificador'"
+%type opt_expr {Expression*}
+%type expr {Expression*}
+%type bool_term {Expression*}
+%type relational_expr {Expression*}
+%type bit_shift_expr {Expression*}
+%type arith_expr {Expression*}
+%type arith_term {Expression*}
+%type factor {Expression*}
+%type constant {Expression*}
+%type bool_constant {Expression*}
+%type print_argument {Expression*}
+%type lvalue {Expression*}
+%type opt_array_dimension {Expression*}
+%type optional_initialization {Expression*}
 
-%token K_CLASS 		"'class'"
-%token K_BREAK		"'break'"
-%token K_CONTINUE 	"'continue'"
-%token K_WHILE 		"'while'"
-%token K_FOR 		"'for'"
-%token K_IF 		"'if'"
-%token K_ELSE 		"'else'"
-%token K_RETURN 	"'return'"
-%token K_READ 		"'read'"
-%token K_PRINT		"'print'"
-%token<constant> K_TRUE	 "'true'"
-%token<constant> K_FALSE "'false'"
-%token<type> K_INT	"'int'"
-%token<type> K_VOID 	"'void'"
-%token<type> K_BOOLEAN	"'boolean'"
+%type opt_method_call_argument_list {ExpressionList*}
+%type method_call_argument_list {ExpressionList*}
+%type read_argument_list {ExpressionList*}
+%type print_argument_list {ExpressionList*}
 
-%token<oper> BOOL_OP_OR 		"operador booleano 'or'"
-%token<oper> BOOL_OP_AND 	"operador booleano 'and'"
-%token<oper> BIT_SHIFT_OP 	"operador de corrimiento de bits"
-%token<oper> REL_OP 			"operador relacional '>', '<', '>=', '<=', '==' o '!='"
-%token<oper> ARITH_OP_SUM 	"operador aritmetico '+' o '-'"
-%token<oper> ARITH_OP_MUL 	"operador aritmetico '*', '/', '%' "
+%type var {VariableDef*}
+%type field_decl {VariableDefList*}
+%type field_decl_list {VariableDefList*}
+%type var_decl {VariableDefList*}
+%type var_list {VariableDefList*}
+%type opt_var_decl_list {VariableDefList*}
+%type var_decl_list {VariableDefList*}
+%type optional_field_decl_list {VariableDefList*}
 
-%token<integer>	CHAR_CONSTANT 	"constante caracter"
-%token<integer> INT_CONSTANT 	"constante entera"
-%token<integer>	REAL_CONSTANT 	"constante real"
-%token<string>	STRING_CONSTANT "constante de cadena"
+%type method_decl {MethodDef*}
+%type optional_method_decl_list {MethodDefList*}
+%type method_decl_list {MethodDefList*}
 
-%type<statement> statement assign method_call if_statement while_statement for_statement return_statement break_statement continue_statement block
-%type<statement> for_assignment_list opt_else
-%type<expression> opt_expr expr bool_term relational_expr bit_shift_expr arith_expr arith_term factor constant bool_constant
-%type<expression> print_argument lvalue opt_array_dimension optional_initialization
-%type<expression_list> opt_method_call_argument_list method_call_argument_list read_argument_list print_argument_list
-%type<variable_def> var
-%type<variable_def_list> field_decl field_decl_list var_decl var_list opt_var_decl_list var_decl_list optional_field_decl_list
-%type<method_def> method_decl
-%type<method_def_list> optional_method_decl_list method_decl_list
-%type<parameter_def> parameter_decl
-%type<parameter_def_list> opt_parameter_decl_list parameter_decl_list
-%type<class_def> class_def
-%type<string> class_name method_name
-%type<statement_list>	opt_statement_list statement_list
-%type<type> return_type type
+%type parameter_decl {ParameterDef*}
+%type opt_parameter_decl_list {ParameterDefList*}
+%type parameter_decl_list {ParameterDefList*}
 
-%expect 4
+%type class_def {ClassDef*}
+%type class_name {char*}
+%type method_name {char*}
+%type	opt_statement_list {StatementList*}
+%type statement_list {StatementList*}
+%type return_type {Type}
+%type type {Type}
 
-%%
+%syntax_error {
+    string strErr = getTokenString(yymajor, TOKEN);
+    reportError("Line %d: Syntax error. Unexpected %s\n", yylloc->last_line, strErr.c_str());
+}
+
+%start_symbol init
+
+init ::= program.
 
 program
-	:	class_def	{ class_def = $1; }
-;
+	::=	class_def(B).	{ class_def = B; }
 
-class_def :
-		K_CLASS class_name '{' optional_field_decl_list optional_method_decl_list '}'
-		{ $$ = new ClassDef($2, $4, $5); }
-;
+class_def(A) ::=
+		K_CLASS class_name(B) T_OSET optional_field_decl_list(C) optional_method_decl_list(D) T_CSET.
+		{ A = new ClassDef(B, C, D); }
 
-optional_field_decl_list:
-				field_decl_list		{ $$ = $1; }
-				| /*Nada*/		{ $$ = 0; }
-;
 
-optional_method_decl_list:
-				method_decl_list	{ $$ = $1; }
-				| /*Nada*/		{ $$ = 0; }
-;
+optional_field_decl_list(A) ::= field_decl_list(B).		{ A = B; }
+optional_field_decl_list(A) ::= . 		{ A = 0; }
 
-field_decl_list:
-			field_decl_list field_decl	{ $$ = $1; $$->insert($$->end(), $2->begin(), $2->end()); delete $2;}
-			| field_decl			{ $$ = $1; }
-;
+optional_method_decl_list(A)::= method_decl_list(B).	{ A = B; }
+optional_method_decl_list(A)::= .		{ A = 0; }
 
-method_decl_list:
-			method_decl_list method_decl	{ $$ = $1; $$->push_back($2); }
-			| method_decl			{ $$ = new MethodDefList; $$->push_back($1); }
-;
+field_decl_list(A)::=	field_decl_list(B) field_decl(C).	{ A = B; A->insert(A->end(), C->begin(), C->end()); delete C;}
+field_decl_list(A)::= field_decl(B).			{ A = B; }
 
-class_name
-	:	ID { $$ = $1; }
-;
+method_decl_list(A)::= method_decl_list(B) method_decl(C).	{ A = B; A->push_back(C); }
+method_decl_list(A)::= method_decl(B).			{ A = new MethodDefList; A->push_back(B); }
 
-field_decl
-	:	  type var_list ';' { $$ = SetType($2, $1); }
-;
+class_name(A)::= 	ID(B). { A = B->strValue; }
 
-var_list:
-		var_list ',' var	{ $$ = $1; $$->push_back($3); }
-		| var			{
-						$$ = new VariableDefList;
-						$$->push_back($1);
-					}
-;
+field_decl(A)::= 	type(B) var_list(C) T_SEMICOLON. { A = SetType(C, B); }
 
-var	:	 ID optional_initialization	{
-							$$ = new VariableDef($1, @1.last_line, @1.first_column);
-							$$->initial_value = $2;
+var_list(A)::= var_list(B) T_COMMA var(D).	{ A = B; A->push_back(D); }
+var_list(A)::= var(B).			{
+															A = new VariableDefList;
+															A->push_back(B);
+														}
+
+var	(A)::= 	 ID(B) optional_initialization(C).	{
+							A = new VariableDef(B->strValue, @1.last_line, @1.first_column);
+							A->initial_value = C;
+						}
+var	(A)::= ID(B) T_OBRACKET INT_CONSTANT(D) T_CBRACKET.	{
+							A = new VariableDef(B->strValue, @1.last_line, @1.first_column);
+							A->is_array_def = true;
+							A->array_dimension = D->intValue;
 						}
 
-		| ID '[' INT_CONSTANT ']'	{
-							$$ = new VariableDef($1, @1.last_line, @1.first_column);
-							$$->is_array_def = true;
-							$$->array_dimension = $3;
-						}
-;
+optional_initialization(A)::=	T_ASSIGN constant(C).	{ A = C; }
+optional_initialization(A)::=.		{ A = 0; }
 
-optional_initialization:
-				'=' constant	{ $$ = $2; }
-				| /*Empty*/		{ $$ = 0; }
-;
+
+
+CONTINUAR AQUI
+
 
 
 method_decl
-	:	return_type ID '(' opt_parameter_decl_list ')' block
+	(A)::= 	return_type ID '(' opt_parameter_decl_list ')' block.
 		{
-			$$ = new MethodDef($2);
-			$$->method_return_type = $1;
-			$$->method_parameters = $4;
-			$$->method_body =  $6;
+			A = new MethodDef(C);
+			A->method_return_type = B;
+			A->method_parameters = E;
+			A->method_body =  G;
 		}
-;
 
-return_type:
-		type		{ $$ = $1; }
-		| K_VOID	{ $$ = Void; }
-;
+return_type(A)::=
+		type.		{ A = B; }
+		| K_VOID.	{ A = Void; }
 
-opt_parameter_decl_list:
-			parameter_decl_list 	{ $$ = $1; }
-			| /*Nada*/		{ $$ = 0; }
-;
+opt_parameter_decl_list(A)::=
+			parameter_decl_list. 	{ A = B; }
+			|. /*Nada*/		{ A = 0; }
 
-parameter_decl_list:
-			parameter_decl_list ',' parameter_decl	{
-									$$ = $1;
-									$$->push_back($3);
+parameter_decl_list(A)::=
+			parameter_decl_list T_COMMA parameter_decl.	{
+									A = B;
+									A->push_back(D);
 								}
-			| parameter_decl			{
-									$$ = new ParameterDefList;
-									$$->push_back($1);
+			| parameter_decl.			{
+									A = new ParameterDefList;
+									A->push_back(B);
 								}
-;
 
-parameter_decl:
-		type ID		{ $$ = new ParameterDef($2, $1); }
-;
+parameter_decl(A)::=
+		type ID.		{ A = new ParameterDef(C, B); }
 
 block
-	:	'{' opt_var_decl_list opt_statement_list '}'
-		{ $$ = new BlockStatement($2, $3 ); }
-;
+	(A)::= 	T_OSET opt_var_decl_list opt_statement_list T_CSET.
+		{ A = new BlockStatement(C, D ); }
 
-opt_var_decl_list:	var_decl_list	{ $$ = $1; }
-			| /*Nada*/	{ $$ = 0; }
-;
+opt_var_decl_list(A)::= 	var_decl_list. { A = B; }
+			| ./*Nada*/	{ A = 0; }
 
-opt_statement_list:	statement_list	{ $$ = $1; }
-			| /*Nada*/	{ $$ = 0; }
-;
+opt_statement_list(A)::= 	statement_list.	{ A = B; }
+			|. /*Nada*/	{ A = 0; }
 
-var_decl_list:	var_decl_list var_decl	{
-						$$ = $1;
-						$$->insert($$->end(), $2->begin(), $2->end());
-						delete $2;
+var_decl_list(A)::= 	var_decl_list var_decl.	{
+						A = B;
+						A->insert(A->end(), C->begin(), C->end());
+						delete C;
 					}
-		| var_decl		{ $$ = $1; }
-;
+		| var_decl.		{ A = B; }
 
-var_decl:
-		type var_list ';' { $$ = SetType($2, $1); }
-;
+var_decl(A)::=
+		type var_list T_SEMICOLON. { A = SetType(C, B); }
 
-type	:
-		K_INT		{ $$ = Int; }
-		| K_BOOLEAN	{ $$ = Boolean; }
-;
+type	(A)::=
+		K_INT.		{ A = Int; }
+		| K_BOOLEAN.	{ A = Boolean; }
 
-statement_list:
-		statement_list statement	{ $$ = $1; $$->push_back($2); }
-		| statement			{ $$ = new StatementList; $$->push_back($1); }
-;
+statement_list(A)::=
+		statement_list statement.	{ A = B; A->push_back(C); }
+		| statement.			{ A = new StatementList; A->push_back(B); }
 
 statement
-	:	assign ';'			{ $$ = $1; }
-		| method_call ';'		{ $$ = $1; }
-		| if_statement			{ $$ = $1; }
-		| while_statement 		{ $$ = $1; }
-		| for_statement			{ $$ = $1; }
-		| return_statement ';'		{ $$ = $1; }
-		| break_statement ';'		{ $$ = $1; }
-		| continue_statement ';'	{ $$ = $1; }
-		| block 			{ $$ = $1; }
-;
+	(A)::= 	assign T_SEMICOLON.			{ A = B; }
+		| method_call T_SEMICOLON.		{ A = B; }
+		| if_statement.			{ A = B; }
+		| while_statement .		{ A = B; }
+		| for_statement	.		{ A = B; }
+		| return_statement T_SEMICOLON.		{ A = B; }
+		| break_statement T_SEMICOLON	.	{ A = B; }
+		| continue_statement T_SEMICOLON.	{ A = B; }
+		| block .			{ A = B; }
 
-assign	:
-		lvalue '=' expr { $$ = new AssignmentStatement($1, $3, @1.first_line, @1.first_column); };
+assign	(A)::=
+		lvalue T_ASSIGN expr . { A = new AssignmentStatement(B, D, @1.first_line, @1.first_column); }
 
-
-method_call:
-		method_name '(' opt_method_call_argument_list ')'	{ $$ = new MethodCallStatement($1, $3, @1.first_line, @1.first_column); }
-		| K_PRINT print_argument_list				{ $$ = new MethodCallStatement("print", $2, @1.first_line, @1.first_column); }
-		| K_READ read_argument_list				{ $$ = new MethodCallStatement("read", $2, @1.first_line, @1.first_column); }
-;
+method_call(A)::=
+		method_name '(' opt_method_call_argument_list ')'.	{ A = new MethodCallStatement(B, D, @1.first_line, @1.first_column); }
+		| K_PRINT print_argument_list.				{ A = new MethodCallStatement("print", C, @1.first_line, @1.first_column); }
+		| K_READ read_argument_list.			{ A = new MethodCallStatement("read", C, @1.first_line, @1.first_column); }
 
 method_name
-	:	ID	{ $$ = $1; }
-;
+	(A)::= 	ID.	{ A = B; }
 
-opt_method_call_argument_list:
-				method_call_argument_list	{ $$ = $1; }
-				| /*Nada*/			{ $$ = 0; }
-;
+opt_method_call_argument_list(A)::=
+				method_call_argument_list.	{ A = B; }
+				| . /*Nada*/			{ A = 0; }
 
-method_call_argument_list:
-				method_call_argument_list ',' expr	{ $$ = $1; $$->push_back($3); }
-				| expr					{ $$ = new ExpressionList; $$->push_back($1); }
-;
+method_call_argument_list(A)::=
+				method_call_argument_list T_COMMA expr.	{ A = B; A->push_back(D); }
+				| expr	.				{ A = new ExpressionList; A->push_back(B); }
 
-print_argument_list:
-			print_argument_list ',' print_argument	{ $$ = $1; $$->push_back($3); }
-			| print_argument			{ $$ = new ExpressionList; $$->push_back($1); }
-;
+print_argument_list(A)::=
+			print_argument_list T_COMMA print_argument.	{ A = B; A->push_back(D); }
+			| print_argument.			{ A = new ExpressionList; A->push_back(B); }
 
 print_argument
-	:	STRING_CONSTANT		{ $$ = new ConstantExpression($1); }
-		| expr			{ $$ = $1; }
-;
+	(A)::= 	STRING_CONSTANT	.	{ A = new ConstantExpression(B); }
+		| expr	.		{ A = B; }
 
-read_argument_list:
-			read_argument_list ',' lvalue	{ $$ = $1; $$->push_back($3); }
-			| lvalue			{ $$ = new ExpressionList; $$->push_back($1); }
-;
+read_argument_list(A)::=
+			read_argument_list T_COMMA lvalue.	{ A = B; A->push_back(D); }
+			| lvalue.			{ A = new ExpressionList; A->push_back(B); }
 
 lvalue
-	:	ID opt_array_dimension	{ $$ = new LValueExpression($1, $2); }
-;
+	(A)::= 	ID opt_array_dimension.	{ A = new LValueExpression(B, C); }
 
-opt_array_dimension:
-			'[' expr ']'	{ $$ = $2; }
-			| /*Nada*/	{ $$ = 0; }
-;
+opt_array_dimension(A)::=
+			T_OBRACKET expr T_CBRACKET.	{ A = C; }
+			|. /*Nada*/	{ A = 0; }
 
-if_statement:
-		K_IF '(' expr ')' block opt_else	{ $$ = new IfStatement($3, $5, $6, @1.first_line, @1.first_column); }
-;
+if_statement(A)::=
+		K_IF '(' expr ')' block opt_else.	{ A = new IfStatement(D, F, G, @1.first_line, @1.first_column); }
 
-opt_else:
-		K_ELSE block	{ $$ = $2; }
-		| /*Nada*/	{ $$ = 0; }
-;
+opt_else(A)::=
+		K_ELSE block.	{ A = C; }
+		|. /*Nada*/	{ A = 0; }
 
-while_statement:
-		K_WHILE '(' expr ')' block	{ $$ = new WhileStatement($3, $5, @1.first_line, @1.first_column); }
-;
+while_statement(A)::=
+		K_WHILE '(' expr ')' block.	{ A = new WhileStatement(D, F, @1.first_line, @1.first_column); }
 
-for_statement:
-		K_FOR '(' for_assignment_list ';' expr ';' for_assignment_list ')' block
-		{ $$ = new ForStatement($3, $5, $7, $9, @1.first_line, @1.first_column); }
-;
+for_statement(A)::=
+		K_FOR '(' for_assignment_list T_SEMICOLON expr T_SEMICOLON for_assignment_list ')' block.
+		{ A = new ForStatement(D, F, H, J, @1.first_line, @1.first_column); }
 
-for_assignment_list:
-			for_assignment_list ',' assign		{ $$ = $1; ((BlockStatement *)$$)->AddStatement($3); }
-			| assign				{ $$ = new BlockStatement(@1.first_line, @1.first_column); ((BlockStatement *)$$)->AddStatement($1); }
-;
+for_assignment_list(A)::=
+			for_assignment_list T_COMMA assign.		{ A = B; ((BlockStatement *)A)->AddStatement(D); }
+			| assign.				{ A = new BlockStatement(@1.first_line, @1.first_column); ((BlockStatement *)A)->AddStatement(B); }
 
-return_statement:
-			 K_RETURN opt_expr	{ $$ = new ReturnStatement($2, @1.first_line, @1.first_column); }
-;
+return_statement(A)::=
+			 K_RETURN opt_expr.	{ A = new ReturnStatement(C, @1.first_line, @1.first_column); }
 
-break_statement:
-			K_BREAK		{ $$ = new BreakStatement(@1.first_line, @1.first_column); }
-;
+break_statement(A)::=
+			K_BREAK	.	{ A = new BreakStatement(@1.first_line, @1.first_column); }
 
-continue_statement:
-			K_CONTINUE	{ $$ = new ContinueStatement(@1.first_line, @1.first_column); }
-;
+continue_statement(A)::=
+			K_CONTINUE.	{ A = new ContinueStatement(@1.first_line, @1.first_column); }
 
-opt_expr:
-		expr		{ $$ = $1; }
-		| /*Nada*/	{ $$ = 0; }
-;
+opt_expr(A)::=
+		expr.		{ A = B; }
+		|. /*Nada*/	{ A = 0; }
 
-expr	:
-		expr BOOL_OP_OR bool_term	{ $$ = new BinaryExpression($1, $3, $2); }
-		| bool_term			{ $$ = $1; }
-;
+expr	(A)::=
+		expr BOOL_OP_OR bool_term.	{ A = new BinaryExpression(B, D, C); }
+		| bool_term	.		{ A = B; }
 
-bool_term:	bool_term BOOL_OP_AND relational_expr	{ $$ = new BinaryExpression($1, $3, $2); }
-		| relational_expr			{ $$ = $1; }
-;
+bool_term(A)::= 	bool_term BOOL_OP_AND relational_expr.	{ A = new BinaryExpression(B, D, C); }
+		| relational_expr.			{ A = B; }
 
-relational_expr:
-			relational_expr  REL_OP bit_shift_expr	{ $$ = new BinaryExpression($1, $3, $2); }
-			| bit_shift_expr			{ $$ = $1; }
-;
+relational_expr(A)::=
+			relational_expr  REL_OP bit_shift_expr.	{ A = new BinaryExpression(B, D, C); }
+			| bit_shift_expr.			{ A = B; }
 
-bit_shift_expr:
-			bit_shift_expr BIT_SHIFT_OP arith_expr	{ $$ = new BinaryExpression($1, $3, $2); }
-			| arith_expr				{ $$ = $1; }
-;
+bit_shift_expr(A)::=
+			bit_shift_expr BIT_SHIFT_OP arith_expr.	{ A = new BinaryExpression(B, D, C); }
+			| arith_expr.				{ A = B; }
 
-arith_expr:
-		arith_expr ARITH_OP_SUM arith_term		{ $$ = new BinaryExpression($1, $3, $2); }
-		| arith_term					{ $$ = $1; }
-;
+arith_expr(A)::=
+		arith_expr ARITH_OP_SUM arith_term.		{ A = new BinaryExpression(B, D, C); }
+		| arith_term.					{ A = B; }
 
-arith_term:	arith_term ARITH_OP_MUL	factor			{ $$ = new BinaryExpression($1, $3, $2); }
-		| factor					{ $$ = $1; }
-;
+arith_term(A)::= 	arith_term ARITH_OP_MUL	factor.			{ A = new BinaryExpression(B, D, C); }
+		| factor.					{ A = B; }
 
-factor:
-		'!' factor					{ $$ = new UnaryExpression($2, OpNot); }
-		| ARITH_OP_SUM factor				{ $$ = new UnaryExpression($2, $1); }
-		| lvalue					{ $$ = $1; }
-		| method_name '(' opt_method_call_argument_list ')'	{ $$ = new MethodCallExpression($1, $3); }
-		| constant					{ $$ = $1; }
-		| '(' expr ')'					{ $$ = $2; }
-;
+factor(A)::=
+		'!' factor.					{ A = new UnaryExpression(C, OpNot); }
+		| ARITH_OP_SUM factor.				{ A = new UnaryExpression(C, B); }
+		| lvalue.					{ A = B; }
+		| method_name '(' opt_method_call_argument_list ')'.	{ A = new MethodCallExpression(B, D); }
+		| constant.					{ A = B; }
+		| '(' expr ')'.					{ A = C; }
 
-constant:	INT_CONSTANT 	{ $$ = new ConstantExpression($1); }
-		| CHAR_CONSTANT { $$ = new ConstantExpression($1); }
-		| REAL_CONSTANT { $$ = new ConstantExpression($1); }
-		| bool_constant { $$ = $1; }
-;
+constant(A)::= 	INT_CONSTANT. 	{ A = new ConstantExpression(B); }
+		| CHAR_CONSTANT. { A = new ConstantExpression(B); }
+		| REAL_CONSTANT. { A = new ConstantExpression(B); }
+		| bool_constant. { A = B; }
 
-bool_constant:
-		K_TRUE		{ $$ = new ConstantExpression(true); }
-		| K_FALSE	{ $$ = new ConstantExpression(false); }
-;
+bool_constant(A)::=
+		K_TRUE.		{ A = new ConstantExpression(true); }
+		| K_FALSE.	{ A = new ConstantExpression(false); }
