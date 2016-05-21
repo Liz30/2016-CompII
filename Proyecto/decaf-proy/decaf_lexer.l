@@ -10,6 +10,7 @@
     #include "MethodDef.h"
     #include "ClassDef.h"
     #include "Util.h"
+    #include "TokenInfo.h"
     #include "decaf_tokens.h"
 
     #define YY_DECL int nextToken(struct TokenInfo *&p_info)
@@ -41,7 +42,7 @@ LETTER   [a-zA-Z]
 "print"		{ BeginToken(yytext, yylloc); return K_PRINT; }
 "true"		{ BeginToken(yytext, yylloc); return K_TRUE; }
 "false"		{ BeginToken(yytext, yylloc); return K_FALSE; }
-"int"		{ BeginToken(yytext, yylloc); return K_INT; }
+"int"		  { BeginToken(yytext, yylloc); return K_INT; }
 "void"		{ BeginToken(yytext, yylloc); return K_VOID; }
 "boolean"	{ BeginToken(yytext, yylloc); return K_BOOLEAN; }
 "||"		{ BeginToken(yytext, yylloc); p_info->oper = OpOr; return BOOL_OP_OR; }
@@ -62,7 +63,7 @@ LETTER   [a-zA-Z]
 "%"			{ BeginToken(yytext, yylloc); p_info->oper = OpMod; return ARITH_OP_MUL; }
 \"([^"]|\"\")*\"	{
 						BeginToken(yytext, yylloc);
-						p_info->strValue = yytext;
+						p_info->strValue = strdup(yytext);
 						return STRING_CONSTANT;
 					}
 {DIGIT}+		{
@@ -72,7 +73,7 @@ LETTER   [a-zA-Z]
 				}
 (_|{LETTER})(_|{LETTER}|{DIGIT})*	{
 										BeginToken(yytext, yylloc);
-										p_info->strValue = yytext;
+										p_info->strValue = strdup(yytext);
 										return ID;
 									}
 ";"		{ BeginToken(yytext, yylloc); return T_SEMICOLON; }
@@ -97,24 +98,15 @@ string getTokenString(int token, TokenInfo *info)
     string tokenName;
 
     switch (token) {
-    case T_EOF: tokenName = "end of input"; break;
-    case T_TEXT: tokenName = "text block"; break;
     case K_IF: tokenName = "K_IF"; break;
     case K_ELSE: tokenName = "K_ELSE"; break;
     case K_WHILE:tokenName = "K_WHILE"; break;
-    case K_ASSIGN:tokenName = "K_ASSIGN"; break;
-    case K_PRINT: tokenName = "K_PRINT"; break;
 
-    case T_LESS:
-    case T_LSET:
-    case T_RSET:
-    case T_EQUAL:
-    case T_ADD:
-    case T_SUB:
-    case T_MULT:
-    case T_DIV:
-    case T_LPAREN:
-    case T_RPAREN:
+    case T_OSET:
+    case T_CSET:
+    case REL_OP:
+    case T_OPAR:
+    case T_CPAR:
     case T_SEMICOLON:
         tokenName = "symbol";
         break;
@@ -128,7 +120,7 @@ string getTokenString(int token, TokenInfo *info)
     string result = tokenName;
 
     if (info != NULL)
-        result += " '" + info->strValue + "'";
+        result += " '" + ::convertToString(info->strValue) + "'";
 
     return result;
 }

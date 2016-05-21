@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <cstdarg>
 #include <cstdio>
 #include <iostream>
 #include <fstream>
@@ -11,7 +12,7 @@ static int errors = 0;
 
 using namespace std;
 
-int yyparse();
+//int yyparse();
 int nextToken(struct TokenInfo *&p_info);
 
 ClassDef *class_def;
@@ -37,27 +38,24 @@ int main(int argc, char *argv[])
 	}
 
 	class_def = 0;
-	yyparse();
-
+//	yyparse();
+	cout << "BEFORE"<<endl;
 	if (errors == 0) {
-		cout << class_def->ToString() << endl;
+		cout<<"IN"<<endl;
+		if (class_def != NULL)
+			cout << class_def->ToString() << endl;
+		else
+			cout << "No hay contenido" << endl;
 	}
-
+	cout << "AFTER"<<endl;
 	return 0;
 }
-
-/*void yyerror(const char *message)
-{
-	errors++;
-
-	fprintf(stderr, "%d:%s\n", current_line, message);
-}*/
 
 void reportError(const char *format, ...)
 {
     va_list args;
 
-    error++;
+    errors++;
 
     va_start(args, format);
     vprintf(format, args);

@@ -25,8 +25,9 @@ ${DECAF_LEXER}:	decaf_lexer.l ${DECAF_TOKENS}
 
 ${DECAF_GRAMMAR} ${DECAF_TOKENS}: decaf_grammar.y
 	lemon -q -Tlempar.c $<
-	mv ${TARGET}.c ${DECAF_GRAMMAR}
-	mv ${TARGET}.h ${DECAF_TOKENS}
+	mv ${TARGET}_grammar.c ${DECAF_GRAMMAR}
+	mv ${TARGET}_grammar.h ${DECAF_TOKENS}
 
 clean::
 	-rm -f *~ *.o ${TARGET} ${DECAF_LEXER} ${DECAF_GRAMMAR} ${DECAF_TOKENS} ${DECAF_EXE} decaf_grammar.output
+	rm -f ${TARGET}_grammar.c

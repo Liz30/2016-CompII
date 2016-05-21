@@ -7,14 +7,13 @@
 		#include "Statement.h"
 		#include "MethodDef.h"
 		#include "ClassDef.h"
-		#include "TokenInfo.h"
 		#include "decaf_tokens.h"
-
-		using namespace std;
 
 		extern ClassDef *class_def;
 		extern YYLTYPE *yylloc;
 
+		//int yylex(YYSTYPE*, YYLTYPE*); //YYSTYPE is from bison, is not necessary define it.
+		//void yyerror(const char *message);
 		void reportError(const char *format, ...);
 
 		VariableDefList *SetType(VariableDefList *list, Type type)
@@ -111,7 +110,7 @@ class_def(A) ::=
 
 
 optional_field_decl_list(A) ::= field_decl_list(B).		{ A = B; }
-optional_field_decl_list(A) ::= . 										{ A = 0; }
+optional_field_decl_list(A) ::= . 		{ A = 0; }
 
 optional_method_decl_list(A)::= method_decl_list(B).	{ A = B; }
 optional_method_decl_list(A)::= .		{ A = 0; }
@@ -133,11 +132,11 @@ var_list(A)::= var(B).			{
 														}
 
 var	(A)::= 	 ID(B) optional_initialization(C).					 {
-																													 A = new VariableDef(B->strValue, yylloc->last_line, yylloc->first_column);
+																													 A = new VariableDef(B->strValue, @1.last_line, @1.first_column);
 																													 A->initial_value = C;
 																												 }
 var	(A)::= ID(B) T_OBRACKET INT_CONSTANT(D) T_CBRACKET.	 {
-																														A = new VariableDef(B->strValue, yylloc->last_line, yylloc->first_column);
+																														A = new VariableDef(B->strValue, @1.last_line, @1.first_column);
 																														A->is_array_def = true;
 																														A->array_dimension = D->intValue;
 																													}
@@ -153,7 +152,8 @@ method_decl(A)::= 	return_type(B) ID(C) T_OPAR opt_parameter_decl_list(E) T_CPAR
 																																			A->method_body =  G;
 																																		}
 
-return_type(A)::= K_VOID.		{ A = Void; }
+return_type(A)::=	type(B).		{ A = B; }
+return_type(A)::= K_VOID.	{ A = Void; }
 
 opt_parameter_decl_list(A)::= parameter_decl_list(B). 	{ A = B; }
 opt_parameter_decl_list(A)::=.		{ A = 0; }
@@ -184,7 +184,7 @@ var_decl_list(A)::= 	var_decl_list(B) var_decl(C).	{
 																										}
 var_decl_list(A)::= var_decl(B).										{ A = B; }
 
-var_decl(A)::= type(B) var_list(C) T_SEMICOLON. { A = SetType(C, B); }
+var_decl(A)::= type(B) var_list(C) T_SEMICOLON. { A = SetType(C, B); cout<<"ERIKA "<<B<<endl; }
 
 type(A)::= K_INT.			{ A = Int; }
 type(A)::= K_BOOLEAN.	{ A = Boolean; }
@@ -202,11 +202,11 @@ statement(A)::= break_statement(B) T_SEMICOLON	.	{ A = B; }
 statement(A)::= continue_statement(B) T_SEMICOLON.{ A = B; }
 statement(A)::= block(B) .												{ A = B; }
 
-assign(A)::= lvalue(B) T_ASSIGN expr(D) . { A = new AssignmentStatement(B, D, yylloc->first_line, yylloc->first_column); }
+assign(A)::= lvalue(B) T_ASSIGN expr(D) . { A = new AssignmentStatement(B, D, @1.first_line, @1.first_column); }
 
-method_call(A)::= method_name(B) T_OPAR opt_method_call_argument_list(D) T_CPAR.	{ A = new MethodCallStatement(B, D, yylloc->first_line, yylloc->first_column); }
-method_call(A)::= K_PRINT print_argument_list(C).																	{ A = new MethodCallStatement("print", C, yylloc->first_line, yylloc->first_column); }
-method_call(A)::= K_READ read_argument_list(C).																		{ A = new MethodCallStatement("read", C, yylloc->first_line, yylloc->first_column); }
+method_call(A)::= method_name(B) T_OPAR opt_method_call_argument_list(D) T_CPAR.	{ A = new MethodCallStatement(B, D, @1.first_line, @1.first_column); }
+method_call(A)::= K_PRINT print_argument_list(C).																	{ A = new MethodCallStatement("print", C, @1.first_line, @1.first_column); }
+method_call(A)::= K_READ read_argument_list(C).																		{ A = new MethodCallStatement("read", C, @1.first_line, @1.first_column); }
 
 method_name(A)::= ID(B).	{ A = B->strValue; }
 
@@ -220,7 +220,7 @@ print_argument_list(A)::=	print_argument_list(B) T_COMMA print_argument(D).	{ A 
 print_argument_list(A)::= print_argument(B).																{ A = new ExpressionList; A->push_back(B); }
 
 print_argument(A)::= STRING_CONSTANT(B)	.	{ A = new ConstantExpression(B->strValue); }
-print_argument(A)::= expr(B)	.								{ A = B; }
+print_argument(A)::= expr	.								{ A = B; }
 
 read_argument_list(A)::= read_argument_list(B) T_COMMA lvalue(D).	{ A = B; A->push_back(D); }
 read_argument_list(A)::= lvalue(B).																{ A = new ExpressionList; A->push_back(B); }
@@ -230,24 +230,24 @@ lvalue(A)::= 	ID(B) opt_array_dimension(C).	{ A = new LValueExpression(B->strVal
 opt_array_dimension(A)::=	T_OBRACKET expr(C) T_CBRACKET.	{ A = C; }
 opt_array_dimension(A)::= .																{ A = 0; }
 
-if_statement(A)::= K_IF T_OPAR expr(D) T_CPAR block(F) opt_else(G).	{ A = new IfStatement(D, F, G, yylloc->first_line, yylloc->first_column); }
+if_statement(A)::= K_IF T_OPAR expr(D) T_CPAR block(F) opt_else(G).	{ A = new IfStatement(D, F, G, @1.first_line, @1.first_column); }
 
 opt_else(A)::= K_ELSE block(C).	{ A = C; }
 opt_else(A)::= .								{ A = 0; }
 
-while_statement(A)::= K_WHILE T_OPAR expr(D) T_CPAR block(F).	{ A = new WhileStatement(D, F, yylloc->first_line, yylloc->first_column); }
+while_statement(A)::= K_WHILE T_OPAR expr(D) T_CPAR block(F).	{ A = new WhileStatement(D, F, @1.first_line, @1.first_column); }
 
 for_statement(A)::=	K_FOR T_OPAR for_assignment_list(D) T_SEMICOLON expr(F) T_SEMICOLON for_assignment_list(H) T_CPAR block(J).
-																																			{ A = new ForStatement(D, F, H, J, yylloc->first_line, yylloc->first_column); }
+																																			{ A = new ForStatement(D, F, H, J, @1.first_line, @1.first_column); }
 
 for_assignment_list(A)::= for_assignment_list(B) T_COMMA assign(D).		{ A = B; ((BlockStatement *)A)->AddStatement(D); }
-for_assignment_list(A)::= assign(B).																	{ A = new BlockStatement(yylloc->first_line, yylloc->first_column); ((BlockStatement *)A)->AddStatement(B); }
+for_assignment_list(A)::= assign(B).																	{ A = new BlockStatement(@1.first_line, @1.first_column); ((BlockStatement *)A)->AddStatement(B); }
 
-return_statement(A)::=  K_RETURN opt_expr(C).	{ A = new ReturnStatement(C, yylloc->first_line, yylloc->first_column); }
+return_statement(A)::=  K_RETURN opt_expr(C).	{ A = new ReturnStatement(C, @1.first_line, @1.first_column); }
 
-break_statement(A)::= K_BREAK	.	{ A = new BreakStatement(yylloc->first_line, yylloc->first_column); }
+break_statement(A)::= K_BREAK	.	{ A = new BreakStatement(@1.first_line, @1.first_column); }
 
-continue_statement(A)::= K_CONTINUE.	{ A = new ContinueStatement(yylloc->first_line, yylloc->first_column); }
+continue_statement(A)::= K_CONTINUE.	{ A = new ContinueStatement(@1.first_line, @1.first_column); }
 
 opt_expr(A)::= expr(B).		{ A = B; }
 opt_expr(A)::= .					{ A = 0; }

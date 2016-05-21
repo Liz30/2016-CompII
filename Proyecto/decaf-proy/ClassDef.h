@@ -13,6 +13,7 @@
 #include "Variable.h"
 #include "MethodDef.h"
 #include "Util.h"
+#include "TokenInfo.h"
 
 using namespace std;
 
