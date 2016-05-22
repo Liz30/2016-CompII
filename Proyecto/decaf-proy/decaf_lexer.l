@@ -3,6 +3,7 @@
 %{
 
     #include <math.h>
+    #include <iostream>
     #include "Value.h"
     #include "Variable.h"
     #include "Expression.h"
@@ -13,6 +14,8 @@
     #include "TokenInfo.h"
     #include "decaf_tokens.h"
 
+    using namespace std;
+
     #define YY_DECL int nextToken(struct TokenInfo *&p_info)
 
     #define YY_INPUT(buf,result,max_size)  {\
@@ -21,7 +24,7 @@
           result = YY_NULL; \
         }
 
-    YYLTYPE *yylloc;
+    YYLTYPE *yylloc = new YYLTYPE;
 
 %}
 
@@ -89,6 +92,7 @@ LETTER   [a-zA-Z]
 "//".*"\n"	{ BeginToken(yytext, yylloc); };
 [ \t]+		{ BeginToken(yytext, yylloc); }
 "\n"		{ yylloc->last_line++; yylloc->first_column = 0; }
+<<EOF>> { BeginToken(yytext, yylloc); return T_EOF; }
 .           printf( "%d:Caracter no reconocido: #%d, %s\n", yylloc->last_line, yytext[0], yytext );
 
 %%
@@ -101,6 +105,7 @@ string getTokenString(int token, TokenInfo *info)
     case K_IF: tokenName = "K_IF"; break;
     case K_ELSE: tokenName = "K_ELSE"; break;
     case K_WHILE:tokenName = "K_WHILE"; break;
+    case T_EOF: tokenName = "end of file"; break;
 
     case T_OSET:
     case T_CSET:
@@ -119,8 +124,12 @@ string getTokenString(int token, TokenInfo *info)
 
     string result = tokenName;
 
-    if (info != NULL)
+    //cout<<"       getTokenString"<<endl;
+    if (info != NULL){
+    //    cout << info->strValue<<endl;
         result += " '" + ::convertToString(info->strValue) + "'";
+    //    cout << "tokenName: "<<result<<endl;
+    }
 
     return result;
 }

@@ -101,7 +101,7 @@
 
 %start_symbol init
 
-init ::= program.
+init ::= program T_EOF.
 
 program::=	class_def(B).	{ class_def = B; }
 

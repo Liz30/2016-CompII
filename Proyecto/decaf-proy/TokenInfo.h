@@ -5,19 +5,19 @@
 #include "Expression.h"
 
 struct TokenInfo {
-    Type tokenType;
+    int tokenType;
     char* strValue;
     int intValue;
     ExpressionOperator	oper;
 
-    TokenInfo(Type tokenType, char* strValue) {
+    /*TokenInfo(int tokenType, char* strValue) {
         this->tokenType = tokenType;
         this->strValue = strValue;
-    }
+    }*/
 };
 
 string getTokenString(int token, TokenInfo *info);
-TokenInfo *allocTokenInfo(int tokenType, string strValue);
-void freeTokenInfo(TokenInfo *ti);
+//TokenInfo *allocTokenInfo(int tokenType, string strValue);
+//void freeTokenInfo(TokenInfo *ti);
 
 #endif
