@@ -154,6 +154,7 @@ method_decl(A)::= 	return_type(B) ID(C) T_OPAR opt_parameter_decl_list(E) T_CPAR
 																																		}
 
 return_type(A)::= K_VOID.		{ A = Void; }
+return_type(A)::= type(B).	{ A = B; }
 
 opt_parameter_decl_list(A)::= parameter_decl_list(B). 	{ A = B; }
 opt_parameter_decl_list(A)::=.		{ A = 0; }
