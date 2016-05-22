@@ -27,6 +27,17 @@ void Parse(void *yyp, int yymajor, TokenInfo *yyminor);
 
 set<TokenInfo *> tiSet;
 
+TokenInfo *allocTokenInfo(int tokenType, char* strValue)
+{
+    TokenInfo *ti = new TokenInfo(tokenType, strValue);
+    //printf("Alloc: %p\n", ti);
+    if (ti != NULL) {
+        tiSet.insert(ti);
+    }
+    return ti;
+}
+
+
 int main(int argc, char *argv[])
 {
 	if (argc > 0) {
@@ -47,7 +58,7 @@ int main(int argc, char *argv[])
 
 	/* PARSER */
 		void *parser = ParseAlloc(malloc);
-		TokenInfo *ti = new TokenInfo;
+		TokenInfo *ti;// = new TokenInfo;
 
 		int token = nextToken(ti);
 		//cout << "BEFORE Token: "<<token<<endl;
@@ -55,8 +66,7 @@ int main(int argc, char *argv[])
 		while (token != T_EOF) {
 				Parse(parser, token, ti);
         //cout<<" 2 Parser. Token: "<<token<<endl;
-				//cout << "Token: "<<token<<"    String: "<<getTokenString(token, ti)<<endl;
-        ti = new TokenInfo;
+				//cout << "Token: ("<<token<<")    "<<getTokenString(token, ti)<<endl;
 				token = nextToken(ti);
 		}
 		Parse(parser, T_EOF, ti);
