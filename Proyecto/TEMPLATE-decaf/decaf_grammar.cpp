@@ -507,7 +507,7 @@ static const yytype_uint16 yyprhs[] =
 static const yytype_int8 yyrhs[] =
 {
       40,     0,    -1,    41,    -1,     4,    46,    29,    42,    43,
-      30,    -1,    44,    -1,    -1,    45,    -1,    -1,    44,    47,
+      30,    -1,    44,    -1,    -1,    45,    -1,    -1,    47,    44,
       -1,    47,    -1,    45,    51,    -1,    51,    -1,     3,    -1,
       61,    48,    31,    -1,    48,    32,    49,    -1,    49,    -1,
        3,    50,    -1,     3,    33,    26,    34,    -1,    35,    90,
@@ -672,7 +672,7 @@ static const yytype_int16 yydefgoto[] =
 static const yytype_int8 yypact[] =
 {
        4,    16,    43,   -84,   -84,    32,   -84,    -1,   -84,   -84,
-      23,    -1,   -84,    42,   -84,    33,    23,   -84,    64,   -84,
+      23,   -84,    -1,    42,   -84,    33,    23,   -84,    64,   -84,
      -84,    -3,    22,   -84,   -84,   -84,    37,    53,    72,   -84,
      -84,    42,    -1,    49,   -84,   -84,   -84,   -84,   -84,   -84,
      -84,   -84,    47,    56,   -84,    82,   -84,    62,    -1,   -84,
@@ -693,12 +693,12 @@ static const yytype_int8 yypact[] =
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -84,   -84,   -84,   -84,   -84,   -84,   -84,   -84,   126,    83,
-     109,   -84,   122,   -84,   -84,   -84,    93,   -47,   -84,   -84,
+     -84,   -84,   -84,   -84,   -84,   126,   -84,   -84,   -84,    83,
+     109,   -84,   121,   -84,   -84,   -84,    93,   -47,   -84,   -84,
      -84,    89,    10,   -84,    74,   -80,   -84,   -46,    18,   -84,
      -84,    11,   -84,   -52,   -84,   -84,   -84,   -84,   -84,   -15,
      -84,   -84,   -84,   -84,   -61,    25,    20,    17,    26,    27,
-     -83,   121,   -84
+     -83,   122,   -84
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -721,9 +721,9 @@ static const yytype_int16 yytable[] =
       34,    35,    85,    86,   101,   108,   112,   110,   111,    87,
       73,    36,    37,    38,   104,   113,   166,   126,   114,   115,
      168,   116,    88,   127,    89,   128,   131,    82,   129,   130,
-     133,   132,   134,   154,   155,   163,   160,    20,    25,    81,
-      41,    52,   109,    80,   145,   153,   148,   165,   147,    39,
-       0,     0,   146,     0,     0,     0,   149,     0,   150
+     133,   132,   134,   154,   155,   163,   160,    25,    20,    81,
+      41,    52,   109,    80,   145,   153,   148,   165,   147,     0,
+      39,     0,   146,     0,     0,     0,   149,     0,   150
 };
 
 static const yytype_int16 yycheck[] =
@@ -741,9 +741,9 @@ static const yytype_int16 yycheck[] =
       14,    15,    36,    36,     3,    30,    36,    31,    31,    23,
      162,    25,    26,    27,    28,    35,   163,    36,    31,    31,
      167,    31,    36,    19,    38,    20,    23,    33,    22,    21,
-      32,    24,    32,    37,    32,    10,    37,    11,    16,    56,
-      31,    48,    68,    54,   126,   134,   129,   162,   128,    28,
-      -1,    -1,   127,    -1,    -1,    -1,   130,    -1,   131
+      32,    24,    32,    37,    32,    10,    37,    16,    12,    56,
+      31,    48,    68,    54,   126,   134,   129,   162,   128,    -1,
+      28,    -1,   127,    -1,    -1,    -1,   130,    -1,   131
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -752,7 +752,7 @@ static const yytype_uint8 yystos[] =
 {
        0,     4,    40,    41,     3,    46,     0,    29,    16,    18,
       42,    44,    47,    61,    17,    43,    45,    51,    52,    61,
-      47,     3,    48,    49,    30,    51,     3,    33,    35,    50,
+      44,     3,    48,    49,    30,    51,     3,    33,    35,    50,
       31,    32,    36,    26,    14,    15,    25,    26,    27,    90,
       91,    49,    53,    54,    55,    61,    34,    37,    32,     3,
       29,    56,    55,    57,    59,    60,    61,     3,     5,     6,
@@ -1657,7 +1657,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 129 "decaf_grammar.y"
-    { (yyval.variable_def_list) = (yyvsp[(1) - (2)].variable_def_list); (yyval.variable_def_list)->insert((yyval.variable_def_list)->end(), (yyvsp[(2) - (2)].variable_def_list)->begin(), (yyvsp[(2) - (2)].variable_def_list)->end()); delete (yyvsp[(2) - (2)].variable_def_list);;}
+    { (yyval.variable_def_list) = (yyvsp[(2) - (2)].variable_def_list); (yyval.variable_def_list)->insert((yyval.variable_def_list)->end(), (yyvsp[(1) - (2)].variable_def_list)->begin(), (yyvsp[(1) - (2)].variable_def_list)->end()); delete (yyvsp[(1) - (2)].variable_def_list);;}
     break;
 
   case 9:
@@ -1706,7 +1706,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 148 "decaf_grammar.y"
-    { 
+    {
 						(yyval.variable_def_list) = new VariableDefList;
 						(yyval.variable_def_list)->push_back((yyvsp[(1) - (1)].variable_def));
 					;}
@@ -1716,7 +1716,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 154 "decaf_grammar.y"
-    { 
+    {
 							(yyval.variable_def) = new VariableDef((yyvsp[(1) - (2)].string), (yylsp[(1) - (2)]).last_line, (yylsp[(1) - (2)]).first_column);
 							(yyval.variable_def)->initial_value = (yyvsp[(2) - (2)].expression);
 						;}
@@ -1726,8 +1726,8 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 159 "decaf_grammar.y"
-    { 
-							(yyval.variable_def) = new VariableDef((yyvsp[(1) - (4)].string), (yylsp[(1) - (4)]).last_line, (yylsp[(1) - (4)]).first_column); 
+    {
+							(yyval.variable_def) = new VariableDef((yyvsp[(1) - (4)].string), (yylsp[(1) - (4)]).last_line, (yylsp[(1) - (4)]).first_column);
 							(yyval.variable_def)->is_array_def = true;
 							(yyval.variable_def)->array_dimension = (yyvsp[(3) - (4)].integer);
 						;}
@@ -1752,7 +1752,7 @@ yyreduce:
 /* Line 1455 of yacc.c  */
 #line 174 "decaf_grammar.y"
     {
-			(yyval.method_def) = new MethodDef((yyvsp[(2) - (6)].string)); 
+			(yyval.method_def) = new MethodDef((yyvsp[(2) - (6)].string));
 			(yyval.method_def)->method_return_type = (yyvsp[(1) - (6)].type);
 			(yyval.method_def)->method_parameters = (yyvsp[(4) - (6)].parameter_def_list);
 			(yyval.method_def)->method_body =  (yyvsp[(6) - (6)].statement);
@@ -1801,7 +1801,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 197 "decaf_grammar.y"
-    { 
+    {
 									(yyval.parameter_def_list) = new ParameterDefList;
 									(yyval.parameter_def_list)->push_back((yyvsp[(1) - (1)].parameter_def));
 								;}

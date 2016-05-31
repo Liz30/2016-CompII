@@ -1,5 +1,5 @@
 State 7 conflicts: 2 shift/reduce
-State 11 conflicts: 2 shift/reduce
+State 12 conflicts: 2 shift/reduce
 
 
 Grammar
@@ -16,7 +16,7 @@ Grammar
     5 optional_method_decl_list: method_decl_list
     6                          | /* empty */
 
-    7 field_decl_list: field_decl_list field_decl
+    7 field_decl_list: field_decl field_decl_list
     8                | field_decl
 
     9 method_decl_list: method_decl_list method_decl
@@ -374,7 +374,7 @@ state 7
     2 class_def: "'class'" class_name '{' . optional_field_decl_list optional_method_decl_list '}'
     3 optional_field_decl_list: . field_decl_list
     4                         | .  ["'int'", "'void'", "'boolean'", '}']
-    7 field_decl_list: . field_decl_list field_decl
+    7 field_decl_list: . field_decl field_decl_list
     8                | . field_decl
    12 field_decl: . type var_list ';'
    35 type: . "'int'"
@@ -435,8 +435,17 @@ state 10
 
 state 11
 
-    3 optional_field_decl_list: field_decl_list .  ["'int'", "'void'", "'boolean'", '}']
-    7 field_decl_list: field_decl_list . field_decl
+    3 optional_field_decl_list: field_decl_list .
+
+    $default  reduce using rule 3 (optional_field_decl_list)
+
+
+state 12
+
+    7 field_decl_list: . field_decl field_decl_list
+    7                | field_decl . field_decl_list
+    8                | . field_decl
+    8                | field_decl .  ["'int'", "'void'", "'boolean'", '}']
    12 field_decl: . type var_list ';'
    35 type: . "'int'"
    36     | . "'boolean'"
@@ -444,19 +453,13 @@ state 11
     "'int'"      shift, and go to state 8
     "'boolean'"  shift, and go to state 9
 
-    "'int'"      [reduce using rule 3 (optional_field_decl_list)]
-    "'boolean'"  [reduce using rule 3 (optional_field_decl_list)]
-    $default     reduce using rule 3 (optional_field_decl_list)
+    "'int'"      [reduce using rule 8 (field_decl_list)]
+    "'boolean'"  [reduce using rule 8 (field_decl_list)]
+    $default     reduce using rule 8 (field_decl_list)
 
-    field_decl  go to state 20
-    type        go to state 13
-
-
-state 12
-
-    8 field_decl_list: field_decl .
-
-    $default  reduce using rule 8 (field_decl_list)
+    field_decl_list  go to state 20
+    field_decl       go to state 12
+    type             go to state 13
 
 
 state 13
@@ -531,7 +534,7 @@ state 19
 
 state 20
 
-    7 field_decl_list: field_decl_list field_decl .
+    7 field_decl_list: field_decl field_decl_list .
 
     $default  reduce using rule 7 (field_decl_list)
 
