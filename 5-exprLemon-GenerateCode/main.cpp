@@ -21,33 +21,18 @@ void Parse(void *yyp, int yymajor, TokenInfo *yyminor);
 int nextToken(struct TokenInfo *info);
 
 int main(){
-  stMain = 0;
+  stMain = new StatementList;
   void *parser = ParseAlloc(malloc);
   struct TokenInfo *ti = new TokenInfo;
 
   int token = nextToken(ti);
   while (token != TK_EOF){
-
-    if (token == TK_TEXT){
-        string bloque_text;
-        while (token == TK_TEXT){
-            bloque_text += ti->lexem;
-            token=nextToken(ti);
-        }
-        struct TokenInfo *tii = new TokenInfo;
-        tii->lexem = bloque_text;
-        Parse(parser, TK_TEXT, tii);
-        Parse(parser, token, ti);
-    }
-    else
-        Parse(parser, token, ti);
-
+    Parse(parser, token, ti);
     ti = new TokenInfo;
     token = nextToken(ti);
   }
-  //Parse(parser, TK_EOF, ti);
+  Parse(parser, TK_EOF, ti);
   ParseFree(parser, free);
-
 
   //cout<<"ANTES"<<endl;
   //cout<<"Instructions: "<<stMain->size()<<endl<<endl;

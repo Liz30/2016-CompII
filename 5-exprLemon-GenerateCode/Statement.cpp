@@ -21,11 +21,5 @@ void PrintStatement::Execute(){
       cout<<n->Evaluate()<<endl;
       it++;
     }
-
     //showVars();
-}
-
-void AssignStatement::Execute(){
-    vars[this->id] = expr->Evaluate();
-    //cout<<"ASSIGN. id: "<<id<<" ......  "<<vars[id]<<endl;//expr->Evaluate()<<endl;
 }

@@ -10,7 +10,8 @@ extern map<string, int> vars;
 
 enum StatementKind{
   ASSIGN_ST,
-  PRINT_ST
+  PRINT_ST,
+  TEXT_ST
 };
 
 class Statement {
@@ -28,7 +29,7 @@ class AssignStatement: public Statement {
         this->expr = expr;
     }
 
-    void Execute();
+    void Execute() { vars[this->id] = expr->Evaluate(); }
     StatementKind getKind() { return ASSIGN_ST; }
 
     string id;
@@ -43,4 +44,14 @@ class PrintStatement: public Statement {
     StatementKind getKind() { return PRINT_ST; }
 
     ExpressionList* expr_list;
+};
+
+class TextStatement: public Statement {
+  public:
+    TextStatement(string text) { this->text = text; }
+
+    void Execute() { cout<<text; }
+    StatementKind getKind() { return TEXT_ST; }
+
+    string text;
 };

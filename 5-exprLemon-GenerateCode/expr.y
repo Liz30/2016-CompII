@@ -22,6 +22,14 @@
 
     extern StatementList* stMain;
 
+    void addToList(StatementList* source, StatementList* target){
+        StatementList::iterator it = source->begin();
+        while (it!=source->end()){
+          Statement* n = *it;
+          target->push_back(n);
+          it++;
+        }
+    }
 }
 
 %token_destructor { if ($$ != NULL) delete $$; }
@@ -36,6 +44,8 @@
 %type st  {Statement*}
 %type list_st {StatementList*}
 
+%type text_list {Statement*}
+
 
 %syntax_error{
     cout << "Syntax Error. Line: " << line << endl;
@@ -48,10 +58,10 @@ sstart ::= input EOF.
 input ::= input bloque.
 input ::= .
 
-bloque ::= text_list.
-bloque ::= INIT list_st(B) END. { stMain = B;}
+bloque ::= text_list(B).        { stMain->push_back(B); }
+bloque ::= INIT list_st(B) END. { addToList(B, stMain); }
 
-text_list ::= TEXT(B). { printf("%s", B->lexem.c_str()); }
+text_list(A) ::= TEXT(B). { A = new TextStatement(B->lexem); /*printf("%s", B->lexem.c_str());*/ }
 
 list_st(A) ::=  list_st(B) st(C).  { A = B; A->push_back(C); }
 list_st(A) ::=  st(B). { A = new StatementList; A->push_back(B); }
