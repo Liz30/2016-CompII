@@ -1,12 +1,15 @@
 TARGET = expr
 
-all: lemon ${TARGET}
+all: ${TARGET}
 
-lemon: lemon.c
-	gcc -o $@ $<
-
-${TARGET}: ${TARGET}_p.o ${TARGET}_l.o main.o
+${TARGET}: Expression.o Statement.o ${TARGET}_p.o ${TARGET}_l.o main.o
 	g++ -o $@ $^
+
+Expression.o: Expression.cpp Expression.h
+	g++ -g -c -o $@ $<
+
+Statement.o: Statement.cpp Statement.h
+	g++ -g -c -o $@ $<
 
 main.o: main.cpp
 	g++ -c -o $@ $<
@@ -21,7 +24,7 @@ ${TARGET}_p.o: ${TARGET}_p.cpp
 	g++ -c -o $@ $<
 
 ${TARGET}_p.cpp: expr.y
-	./lemon -Tlempar.c $<
+	lemon -q -Tlempar.c $<
 	mv ${TARGET}.c $@
 	mv ${TARGET}.h tokens.h
 
@@ -33,7 +36,6 @@ clean:
 	rm -f tokens.h
 	rm -f ${TARGET}.exe
 	rm -f ${TARGET}
-	rm -f lemon.exe
 	rm -f ${TARGET}.out
 	rm -f ${TARGET}.c
 	rm -f ${TARGET}.h

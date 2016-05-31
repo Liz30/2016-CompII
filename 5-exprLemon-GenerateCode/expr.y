@@ -7,9 +7,12 @@
     #include <cstdio>
     #include <string>
     #include <map>
+    #include <list>
     #include <stdlib.h>
     #include <sstream>
-    #include "expr_h.h"
+    #include "Utils.h"
+    #include "Expression.h"
+    #include "Statement.h"
     #include "tokens.h"
 
     using namespace std;
@@ -17,16 +20,21 @@
     extern int line;
     extern char* mtext;
 
-    map<string, int> vars;
+    extern StatementList* stMain;
+
 }
 
 %token_destructor { if ($$ != NULL) delete $$; }
 %default_type {int}
 %token_prefix TK_
 
-%type expr    {int}
-%type term    {int}
-%type factor  {int}
+%type expr    {Expression*}
+%type term    {Expression*}
+%type factor  {Expression*}
+%type exprl   {ExpressionList*}
+
+%type st  {Statement*}
+%type list_st {StatementList*}
 
 
 %syntax_error{
@@ -41,24 +49,27 @@ input ::= input bloque.
 input ::= .
 
 bloque ::= text_list.
-bloque ::= INIT list_st END.
+bloque ::= INIT list_st(B) END. { stMain = B;}
 
 text_list ::= TEXT(B). { printf("%s", B->lexem.c_str()); }
 
-list_st ::=  list_st st.
-list_st ::=  st.
+list_st(A) ::=  list_st(B) st(C).  { A = B; A->push_back(C); }
+list_st(A) ::=  st(B). { A = new StatementList; A->push_back(B); }
 
-st ::= ASSIGN ID(B) EQUAL expr(C) SEMIC. { vars[B->lexem] = C; }
-st ::= expr(B) SEMIC.      { printf("%d\n", B); }
+st(A) ::= ASSIGN ID(B) EQUAL expr(C) SEMIC. { A = new AssignStatement(B->lexem, C); }
+st(A) ::= PRINT exprl(B) SEMIC.      { A = new PrintStatement(B); }
 
-expr(A) ::= expr(B) ADD term(C).  { A = B + C; }
-expr(A) ::= expr(B) SUB term(C).  { A = B - C; }
+exprl(A) ::= exprl(B) expr(C). { A = B; A->push_back(C); }
+exprl(A) ::= expr(B). { A = new ExpressionList; A->push_back(B); }
+
+expr(A) ::= expr(B) ADD term(C).  { A = new AddExpression(B, C); }
+expr(A) ::= expr(B) SUB term(C).  { A = new SubExpression(B, C); }
 expr(A) ::= term(B).              { A = B; }
 
-term(A) ::= term(B) MULT factor(C). { A = B * C; }
-term(A) ::= term(B) DIV factor(C).  { A = B / C; }
+term(A) ::= term(B) MULT factor(C). { A = new MultExpression(B, C); }
+term(A) ::= term(B) DIV factor(C).  { A = new DivExpression(B, C); }
 term(A) ::= factor(B).              { A = B; }
 
 factor(A) ::= OPAR expr(B) CPAR.  { A = B; }
-factor(A) ::= NUM(B).             { A = B->value; }
-factor(A) ::= ID(B).              { A = vars[B->lexem]; }
+factor(A) ::= NUM(B).             { A = new IntExpression(B->value); }
+factor(A) ::= ID(B).              { A = new IdExpression(B->lexem); }

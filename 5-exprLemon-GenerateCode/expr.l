@@ -5,7 +5,7 @@
 #include <iostream>
 #include <string>
 #include <stdlib.h>
-#include "expr_h.h"
+#include "Utils.h"
 #include "tokens.h"
 
 using namespace std;
@@ -39,8 +39,9 @@ LETTER [a-zA-Z]
 <expr_e>"/" { return TK_DIV; }
 <expr_e>"(" { return TK_OPAR; }
 <expr_e>")" { return TK_CPAR; }
-<expr_e>"assign" { return TK_ASSIGN; }
 <expr_e>";" { return TK_SEMIC; }
+<expr_e>"assign"  { return TK_ASSIGN; }
+<expr_e>"print"   { return TK_PRINT; }
 <expr_e>[ \t]
 <expr_e>\n  { line++; }
 <expr_e>{DIGIT}+ { info->value = atoi(yytext); info->type=INT; return TK_NUM; }
