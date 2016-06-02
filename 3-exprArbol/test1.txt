@@ -1,4 +1,3 @@
-//Comentario de linea
 <?
 assign x  = 10
 assign y = 20
