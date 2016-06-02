@@ -45,15 +45,13 @@ int main(){
         n->getCode();
     if (n->getKind()==ASSIGN_ST)
         n->Execute();
-    //if (n->getKind()==TEXT_ST)
-      //  n->Execute();
     //cout<<"Type: "<<n->getKind()<<endl;
     it++;
   }
 
-  /*cout << "# Exit\n"
+  cout << "# Exit\n"
        << "li $v0, 10\n"
        << "syscall\n";
-*/
+       
   return 0;
 }

@@ -31,12 +31,10 @@ string PrintStatement::getCode(){
   ExpressionList::iterator it = expr_list->begin();
   while (it != expr_list->end()){
     Expression* n = *it;
-    if (n->getCode().code != ""){
-        cout << n->getCode().code << endl <<
-                "move $a0, " << n->lugar<< endl <<
-                "li   $v0, 1" << endl <<
-                "syscall" << endl << endl;
-    }
+    cout << n->getCode() << endl <<
+            "move $a0, " << n->lugar<< endl <<
+            "li   $v0, 1" << endl <<
+            "syscall" << endl << endl;
     it++;
   }
   //releaseAllTemp();
