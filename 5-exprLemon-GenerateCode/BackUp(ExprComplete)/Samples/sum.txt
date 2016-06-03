@@ -1,0 +1,14 @@
+BLOQUE 1:
+<?
+ x = 10;
+ y = 20;
+ z = 2 + 3;
+
+print z;  // 5
+z = x + 10;
+print x + 32; // 42
+print x + y;  // 30
+print 4 + z;  // 24
+print 90 + 100; // 190
+?>
+FIN BLOQUE 1

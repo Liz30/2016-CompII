@@ -32,12 +32,15 @@ string newTemp();
 void releaseTemp(string reg);
 void releaseAllTemp();
 void showTemp();
+//string LoadConstant(IntExpression* e);
 
 class Expression
 {
   public:
+    //int value;
     string lugar;
     virtual ExpressionKind getKind() = 0;
+    //virtual string ToString() = 0;
     virtual Result getCode() = 0;
     virtual int Evaluate() = 0;
 };

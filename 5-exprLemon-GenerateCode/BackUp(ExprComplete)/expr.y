@@ -61,7 +61,7 @@ input ::= .
 bloque ::= text_list(B).        { stMain->push_back(B); }
 bloque ::= INIT list_st(B) END. { addToList(B, stMain); }
 
-text_list(A) ::= TEXT(B). { A = new TextStatement(B->lexem); }
+text_list(A) ::= TEXT(B). { A = new TextStatement(B->lexem); /*printf("%s", B->lexem.c_str());*/ }
 
 list_st(A) ::=  list_st(B) st(C).  { A = B; A->push_back(C); }
 list_st(A) ::=  st(B). { A = new StatementList; A->push_back(B); }

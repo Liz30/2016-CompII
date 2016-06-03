@@ -39,6 +39,14 @@ void releaseAllTemp(){
         releaseTemp(string(temps[i]));
 }
 
+/*string LoadConstant(IntExpression* e){
+    stringstream code;
+    string lugar = newTemp();
+    code << "li "<< lugar << ", " << e->value;
+    e->lugar = lugar;
+    return code.str();
+}*/
+
 Result AddExpression::getCode(){
   stringstream code;
   Result r;// = new Result;
@@ -49,6 +57,7 @@ Result AddExpression::getCode(){
     r.value = expr1->Evaluate() + expr2->Evaluate();
     r.code = "";
     r.isConstant = true;
+    //cout << "                   VALUE: "<<r.value<<endl;
   }
   else if (expr1_r.isConstant){
             lugar = newTemp();
@@ -149,6 +158,7 @@ Result MultExpression::getCode(){
     return r;
   }
   else if (expr1_r.isConstant){
+      //string l1 = LoadConstant((IntExpression*)expr1);
       string lugarTemp = newTemp();
       stringstream codeTemp;
       codeTemp << "li " << lugarTemp << ", " << expr1_r.value;
@@ -254,6 +264,7 @@ Result IdExpression::getCode(){
 
   lugar = newTemp();
   code << "li "<< lugar << ", " << vars[id];
+//  cout << "      ID Expr: " << lugar << endl;
 
   r.value = 0;
   r.code = code.str();

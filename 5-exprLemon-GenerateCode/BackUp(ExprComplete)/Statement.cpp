@@ -49,7 +49,6 @@ string PrintStatement::getCode(){
     it++;
   }
   //releaseAllTemp();
-  //showTemp();
   return code.str();
 }
 
