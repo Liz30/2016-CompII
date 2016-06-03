@@ -28,6 +28,12 @@ struct Result {
 };
 typedef struct Result Result;
 
+string newTemp();
+void releaseTemp(string reg);
+void releaseAllTemp();
+void showTemp();
+//string LoadConstant(IntExpression* e);
+
 class Expression
 {
   public:

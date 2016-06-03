@@ -39,6 +39,14 @@ void releaseAllTemp(){
         releaseTemp(string(temps[i]));
 }
 
+/*string LoadConstant(IntExpression* e){
+    stringstream code;
+    string lugar = newTemp();
+    code << "li "<< lugar << ", " << e->value;
+    e->lugar = lugar;
+    return code.str();
+}*/
+
 Result AddExpression::getCode(){
   stringstream code;
   Result r;// = new Result;
@@ -55,7 +63,7 @@ Result AddExpression::getCode(){
             lugar = newTemp();
             code << expr2_r.code << endl <<
                   "addi " << lugar << ", " << expr2->lugar << ", " <<
-                  expr1->Evaluate();
+                  expr1_r.value;
             releaseTemp(expr2->lugar);
             r.code = code.str();
             r.value = 0;
@@ -65,7 +73,7 @@ Result AddExpression::getCode(){
                 lugar = newTemp();
                 code << expr1_r.code << endl <<
                       "addi " << lugar << ", " << expr1->lugar << ", " <<
-                      expr2->Evaluate();
+                      expr2_r.value;
                 releaseTemp(expr1->lugar);
                 r.code = code.str();
                 r.value = 0;
@@ -101,7 +109,7 @@ Result SubExpression::getCode(){
            lugar = newTemp();
            code << expr1_r.code << endl <<
                  "addi " << lugar << ", " << expr1->lugar << ", " <<
-                 (expr2->Evaluate()*(-1));
+                 (expr2_r.value*(-1));
            releaseTemp(expr1->lugar);
            r.code = code.str();
            r.value = 0;
@@ -111,9 +119,9 @@ Result SubExpression::getCode(){
             lugar = newTemp();
             string lugarTemp = newTemp();
             stringstream codeTemp;
-            codeTemp << "li " << lugarTemp << ", " << expr1->Evaluate();
-            code << expr2_r.code << endl <<
-                  codeTemp.str() << endl <<
+            codeTemp << "li " << lugarTemp << ", " << expr1_r.value;
+            code << codeTemp.str() << endl <<
+                   expr2_r.code << endl <<
                   "sub " << lugar << ", " << lugarTemp << ", " <<
                   expr2->lugar;
             releaseTemp(expr2->lugar);
@@ -137,14 +145,6 @@ Result SubExpression::getCode(){
   return r;
 }
 
-string LoadConstant(IntExpression* e){
-    stringstream code;
-    string lugar = newTemp();
-    code << "li "<< lugar << ", " << e->value;
-    e->lugar = lugar;
-    return code.str();
-}
-
 Result MultExpression::getCode(){
   stringstream code;
   Result r;
@@ -152,29 +152,34 @@ Result MultExpression::getCode(){
   Result expr2_r = expr2->getCode();
 
   if (expr1_r.isConstant && expr2_r.isConstant){
-      string l1 = LoadConstant((IntExpression*)expr1);
-      string l2 = LoadConstant((IntExpression*)expr2);
-      //cout << "NUEVO: " << l1 << endl << l2 << endl;
-      lugar = newTemp();
-      code << l1 << endl <<
-              l2 << endl <<
-              "mult " << expr1->lugar << ", " << expr2->lugar << endl <<
-              "mflo " << lugar;
+    r.value = expr1->Evaluate() * expr2->Evaluate();
+    r.code = "";
+    r.isConstant = true;
+    return r;
   }
   else if (expr1_r.isConstant){
-      string l1 = LoadConstant((IntExpression*)expr1);
+      //string l1 = LoadConstant((IntExpression*)expr1);
+      string lugarTemp = newTemp();
+      stringstream codeTemp;
+      codeTemp << "li " << lugarTemp << ", " << expr1_r.value;
+
       lugar = newTemp();
-      code << l1 << endl <<
+      code << codeTemp.str() << endl <<
               expr2_r.code << endl <<
-              "mult " << expr1->lugar << ", " << expr2->lugar << endl <<
+              "mult " << lugarTemp << ", " << expr2->lugar << endl <<
               "mflo " << lugar;
+      releaseTemp(lugarTemp);
   } else if (expr2_r.isConstant){
-            string l2 = LoadConstant((IntExpression*)expr2);
+            string lugarTemp = newTemp();
+            stringstream codeTemp;
+            codeTemp << "li " << lugarTemp << ", " << expr2_r.value;
+
             lugar = newTemp();
             code << expr1_r.code << endl <<
-                    l2 << endl <<
-                    "mult " << expr1->lugar << ", " << expr2->lugar << endl <<
+                    codeTemp.str() << endl <<
+                    "mult " << expr1->lugar << ", " << lugarTemp << endl <<
                     "mflo " << lugar;
+            releaseTemp(lugarTemp);
   } else {
           lugar = newTemp();
           code << expr1_r.code << endl <<
@@ -197,30 +202,37 @@ Result DivExpression::getCode(){
   Result r;
   Result expr1_r = expr1->getCode();
   Result expr2_r = expr2->getCode();
-  lugar = newTemp();
 
   if (expr1_r.isConstant && expr2_r.isConstant){
-      string l1 = LoadConstant((IntExpression*)expr1);
-      string l2 = LoadConstant((IntExpression*)expr2);
-      //cout << "NUEVO: " << l1 << endl << l2 << endl;
-      code << l1 << endl <<
-              l2 << endl <<
-              "div " << expr1->lugar << ", " << expr2->lugar << endl <<
-              "mflo " << lugar;
+    r.value = expr1->Evaluate() / expr2->Evaluate();
+    r.code = "";
+    r.isConstant = true;
+    return r;
   }
   else if (expr1_r.isConstant){
-      string l1 = LoadConstant((IntExpression*)expr1);
-      code << l1 << endl <<
+      lugar = newTemp();
+      string lugarTemp = newTemp();
+      stringstream codeTemp;
+      codeTemp << "li " << lugarTemp << ", " << expr1_r.value;
+
+      code << codeTemp.str() << endl <<
               expr2_r.code << endl <<
-              "div " << expr1->lugar << ", " << expr2->lugar << endl <<
+              "div " << lugarTemp << ", " << expr2->lugar << endl <<
               "mflo " << lugar;
+      releaseTemp(lugarTemp);
   } else if (expr2_r.isConstant){
-            string l2 = LoadConstant((IntExpression*)expr2);
+            lugar = newTemp();
+            string lugarTemp = newTemp();
+            stringstream codeTemp;
+            codeTemp << "li " << lugarTemp << ", " << expr2_r.value;
+
             code << expr1_r.code << endl <<
-                    l2 << endl <<
-                    "div " << expr1->lugar << ", " << expr2->lugar << endl <<
+                    codeTemp.str() << endl <<
+                    "div " << expr1->lugar << ", " << lugarTemp << endl <<
                     "mflo " << lugar;
+            releaseTemp(lugarTemp);
   } else {
+        lugar = newTemp();
         code << expr1_r.code << endl <<
                 expr2_r.code << endl <<
                 "div " << expr1->lugar << ", " << expr2->lugar << endl <<
@@ -252,6 +264,7 @@ Result IdExpression::getCode(){
 
   lugar = newTemp();
   code << "li "<< lugar << ", " << vars[id];
+//  cout << "      ID Expr: " << lugar << endl;
 
   r.value = 0;
   r.code = code.str();
