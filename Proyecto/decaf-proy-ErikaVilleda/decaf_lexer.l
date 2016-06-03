@@ -38,12 +38,12 @@ LETTER   [a-zA-Z]
 
 %%
 
-"class"		{ BeginToken(yytext, yylloc); RETURN_TOKEN(K_CLASS); }
-"break"		{ BeginToken(yytext, yylloc); RETURN_TOKEN(K_BREAK); }
+"class"		  { BeginToken(yytext, yylloc); RETURN_TOKEN(K_CLASS); }
+"break"		  { BeginToken(yytext, yylloc); RETURN_TOKEN(K_BREAK); }
 "continue"	{ BeginToken(yytext, yylloc); RETURN_TOKEN(K_CONTINUE); }
-"while"		{ BeginToken(yytext, yylloc); RETURN_TOKEN(K_WHILE); }
-"for"		{ BeginToken(yytext, yylloc); RETURN_TOKEN(K_FOR); }
-"if"		{ BeginToken(yytext, yylloc); RETURN_TOKEN(K_IF); }
+"while"		  { BeginToken(yytext, yylloc); RETURN_TOKEN(K_WHILE); }
+"for"		    { BeginToken(yytext, yylloc); RETURN_TOKEN(K_FOR); }
+"if"		    { BeginToken(yytext, yylloc); RETURN_TOKEN(K_IF); }
 "else"		{ BeginToken(yytext, yylloc); RETURN_TOKEN(K_ELSE); }
 "return"	{ BeginToken(yytext, yylloc); RETURN_TOKEN(K_RETURN); }
 "read"		{ BeginToken(yytext, yylloc); RETURN_TOKEN(K_READ); }

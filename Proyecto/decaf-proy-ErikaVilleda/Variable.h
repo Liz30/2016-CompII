@@ -10,11 +10,15 @@
 
 #include <list>
 #include <sstream>
+#include <iostream>
+#include <map>
 #include "Expression.h"
 #include "Value.h"
 #include "FieldMethodDef.h"
 
 using namespace std;
+
+extern map<string, ResultValue> vars;
 
 class VariableDef : public FieldMethodDef
 {
@@ -46,7 +50,30 @@ public:
 
 	virtual MethodKind getKind() { return FIELD; }
 
-	//string variable_name;
+	virtual void Execute() {
+			if (!ExistVarGlobal(name)){
+					ResultValue r;
+					r.type = variable_type;
+					if (initial_value!=0){
+							r = initial_value->Evaluate();
+							if (r.type != variable_type){
+									cout << " ERROR: " << line << "," << column << ": No se puede convertir " << TypeToString(variable_type) << " a " << TypeToString(r.type) << endl;
+									r.type = variable_type;
+							}
+					}
+					vars[name] = r;
+			}
+			else
+					cout << " ERROR: " << line << "," << column << ": " << name << " ya ha sido declarada. "<< endl;
+	}
+
+	bool ExistVarGlobal(string key){
+		map<string, ResultValue>::iterator it = vars.find(key);
+		if ( it != vars.end())
+				return true;
+		return false;
+	}
+
 	Type variable_type;
 	bool is_array_def;
 	Expression *initial_value;

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <set>
+#include <map>
 #include "ClassDef.h"
 #include "decaf_tokens.h"
 
@@ -14,6 +15,9 @@ extern int current_line;
 
 static int errors = 0;
 
+map<string, ResultValue> vars;
+map<string, ResultValue> varsTemp;
+map<string, Type> methods;
 
 ClassDef *class_def;
 string getTokenString(int token, TokenInfo *info);
@@ -75,10 +79,37 @@ int main(int argc, char *argv[])
 
 	if (errors == 0) {
 		if (class_def != NULL)
-			cout << class_def->ToString() << endl;
+			//cout <<
+      class_def->Execute();//  ToString() << endl;
 		else
 			cout << "No hay contenido" << endl;
 	}
+
+  cout<<endl<<"VARS......"<<endl;
+  map<string, ResultValue>::iterator iv = vars.begin();
+  for (iv; iv!=vars.end(); iv++){
+      cout << "  vars[" << iv->first << "] => Tipo: " << iv->second.type << " Valor: ";
+      switch (iv->second.type){
+        case Int: cout << iv->second.value.int_value << endl; break;
+        case Boolean: cout << iv->second.value.bool_value << endl; break;
+     }
+  }
+
+  cout<<endl<<"TEMP......"<<endl;
+  iv = varsTemp.begin();
+  for (iv; iv!=varsTemp.end(); iv++){
+      cout << "  Temp[" << iv->first << "] => Tipo: " << iv->second.type << " Valor: ";
+      switch (iv->second.type){
+        case Int: cout << iv->second.value.int_value << endl; break;
+        case Boolean: cout << iv->second.value.bool_value << endl; break;
+     }
+  }
+
+  cout<<endl<<"METHODS......"<<endl;
+  map<string, Type>::iterator im = methods.begin();
+  for (im; im!=methods.end(); im++)
+      cout << "  Temp[" << im->first << "]: " << im->second << endl;
+
 	return 0;
 }
 

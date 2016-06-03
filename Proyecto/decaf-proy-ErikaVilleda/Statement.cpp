@@ -10,12 +10,33 @@
 #include "Statement.h"
 #include "Util.h"
 
+
 /*
  * ExecuteStatement
  */
 void AssignmentStatement::ExecuteStatement()
 {
 	/* TODO: Implementar AssignmentStatement::ExecuteStatement() */
+
+		ResultValue lvalue_r = lvalue->Evaluate();
+		ResultValue rvalue_r = expr->Evaluate();
+		LValueExpression* n = (LValueExpression*)lvalue;
+
+		if (!ExistVarGlobal(n->variable_name) && !ExistVarTemp(n->variable_name)){
+					cout << "ERROR: Variable \'" << n->variable_name << "\' no ha sido declarada."<<endl;
+		}
+		else if (lvalue_r.type == rvalue_r.type){
+				if (ExistVarGlobal(n->variable_name)){
+						//cout << "Es Global "<<n->variable_name<<endl;
+						vars[n->variable_name] = rvalue_r;
+				}
+				if (ExistVarTemp(n->variable_name)){
+						//cout << "Es Temporal "<<n->variable_name<<endl;
+						varsTemp[n->variable_name] = rvalue_r;
+				}
+		}
+		else
+				cout << " ERROR => Variable: \'"<< n->variable_name << "\' No se puede convertir \'" << TypeToString(rvalue_r.type) << "\' a \'" << TypeToString(lvalue_r.type) << "\'"<<endl;
 }
 
 void MethodCallStatement::ExecuteStatement()
@@ -55,7 +76,59 @@ void ContinueStatement::ExecuteStatement()
 
 void BlockStatement::ExecuteStatement()
 {
-	/* TODO: Implementar BlockStatement::ExecuteStatement() */
+		if (variable_def_list!=0){
+				VariableDefList::iterator itv = variable_def_list->begin();
+				while (itv!=variable_def_list->end()){
+					VariableDef* n = *itv;
+
+					if (!ExistVarTemp(n->name) && !ExistVarGlobal(n->name)){
+							//n->Execute();
+							ResultValue r;
+							r.type = n->variable_type;
+							if (n->initial_value!=0){
+									r = n->initial_value->Evaluate();
+									if (r.type != n->variable_type){
+											cout << " ERROR: " << n->line << "," << n->column << ": No se puede convertir " << TypeToString(n->variable_type) << " a " << TypeToString(r.type) << endl;
+											r.type = n->variable_type;
+									}
+							}
+							varsTemp[n->name] = r;
+							//cout << "  BlockST: " << n->name << "  Tipo: " << r.type << endl;
+					}
+					else
+							cout << " ERROR: " << n->line << "," << n->column << ": Variable \'" << n->name << "\' ya ha sido declarada." << endl;
+					itv++;
+				}
+
+	  }
+
+		if (statement_list!=0){
+				StatementList::iterator its = statement_list->begin();
+				while (its!=statement_list->end()){
+						Statement* n = *its;
+						n->ExecuteStatement();
+					//	cout << n->GetKind()<<endl;
+						its++;
+				}
+	  }
+
+		/*cout<<endl<<"TEMP......"<<endl;
+		map<string, ResultValue>::iterator iv = varsTemp.begin();
+		for (iv; iv!=varsTemp.end(); iv++){
+				cout << "  Temp[" << iv->first << "] => Tipo: " << iv->second.type << " Valor: ";
+				switch (iv->second.type){
+					case Int: cout << iv->second.value.int_value << endl; break;
+					case Boolean: cout << iv->second.value.bool_value << endl; break;
+			 }
+		}*/
+
+		// Release Temp //
+		VariableDefList::iterator it = variable_def_list->begin();
+		while (it!=variable_def_list->end()){
+			VariableDef* n = *it;
+			varsTemp.erase(n->name);
+			it++;
+		}
 }
 
 /*
@@ -65,7 +138,7 @@ string AssignmentStatement::ToString()
 {
 	ostringstream out;
 
-	out << "// Linea " << line << " Columna " << column << "\n"; 
+	out << "// Linea " << line << " Columna " << column << "\n";
 	out << lvalue->ToString() << " = " << expr->ToString() << ";";
 
 	return out.str();
@@ -137,4 +210,3 @@ string BlockStatement::ToString()
 
 	return out.str();
 }
-

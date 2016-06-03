@@ -134,10 +134,7 @@ field_and_methods::= method_decl(B).	{ fmList->push_back(B); }
 field_decl(A)::= 	type(B) var_list(C) T_SEMICOLON. { A = SetType(C, B); 	}
 
 var_list(A)::= var_list(B) T_COMMA var(D).	{ A = B; A->push_back(D); }
-var_list(A)::= var(B).			{
-															A = new VariableDefList;
-															A->push_back(B);
-														}
+var_list(A)::= var(B).											{	A = new VariableDefList; A->push_back(B); }
 
 var	(A)::= ID(B) optional_initialization(C).					 {
 																													 A = new VariableDef(B->strValue, yylloc->last_line, yylloc->first_column);

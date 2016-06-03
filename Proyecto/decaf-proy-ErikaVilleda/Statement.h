@@ -10,6 +10,7 @@
 
 #include <list>
 #include <string>
+#include <map>
 #include "Value.h"
 #include "Variable.h"
 #include "Expression.h"
@@ -28,6 +29,10 @@ enum StatementKind
 	skContinue,
 	skBlock
 };
+
+extern map<string, ResultValue> vars;
+extern map<string, ResultValue> varsTemp;
+extern map<string, Type> methods;
 
 class Statement
 {

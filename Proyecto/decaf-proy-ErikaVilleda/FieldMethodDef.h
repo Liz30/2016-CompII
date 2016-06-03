@@ -10,6 +10,7 @@
 
 #include <string>
 #include <sstream>
+//#include "Value.h"
 
 using namespace std;
 
@@ -27,6 +28,8 @@ public:
 
   virtual MethodKind getKind() = 0;
   virtual string ToString() = 0;
+  virtual void Execute() = 0;
+  //virtual ResultValue getCode() = 0;
 
   string name;
 };

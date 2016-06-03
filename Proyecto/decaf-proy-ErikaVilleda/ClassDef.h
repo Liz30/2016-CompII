@@ -10,6 +10,7 @@
 
 #include <string>
 #include <sstream>
+#include <iostream>
 #include "Variable.h"
 #include "MethodDef.h"
 #include "Util.h"
@@ -98,6 +99,16 @@ class ClassDef
 			//out << ListToString(field_method_def_list, ";\n", true);
 			out << "}" << endl;
 			return out.str();
+		}
+
+		void Execute(){
+				FieldMethodDefList::iterator it = field_method_def_list->begin();
+				while(it!=field_method_def_list->end()){
+						FieldMethodDef* n = *it;
+						//cout << " Tipo: " << n->getKind() << endl;
+						n->Execute();
+						it++;
+				}
 		}
 
 		void AddFieldDef(VariableDef *field_def);

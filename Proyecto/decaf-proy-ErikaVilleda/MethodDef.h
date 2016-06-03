@@ -10,11 +10,15 @@
 
 #include <list>
 #include <sstream>
+#include <iostream>
+#include <map>
 #include "Statement.h"
 #include "Value.h"
 #include "FieldMethodDef.h"
 
 using namespace std;
+extern map<string, ResultValue> varsTemp;
+extern map<string, Type> methods;
 
 struct ParameterDef
 {
@@ -38,10 +42,7 @@ typedef list<ParameterDef *> ParameterDefList;
 class MethodDef : public FieldMethodDef
 {
 	public:
-		MethodDef(string name) : FieldMethodDef(name)
-		{
-			//method_name = name;
-		}
+		MethodDef(string name) : FieldMethodDef(name)	{	}
 
 		~MethodDef()
 		{
@@ -50,17 +51,21 @@ class MethodDef : public FieldMethodDef
 
 				while (it != method_parameters->end()) {
 					ParameterDef *p = *it;
+					varsTemp.erase(p->parameter_name);
 					delete p;
 
 					it++;
 				}
 
+				varsTemp.clear();
 				method_parameters->clear();
 				delete method_parameters;
 			}
 
 			if (method_body != 0)
 				delete method_body;
+
+			methods.erase(name);
 		}
 
 		virtual string ToString()
@@ -78,7 +83,55 @@ class MethodDef : public FieldMethodDef
 
 		virtual MethodKind getKind() { return METHOD; }
 
-		//string method_name;
+		virtual void Execute() {
+				if (!ExistMethod(name)){
+							cout << "METHOD: " << name << endl;
+							methods[name] = method_return_type;
+							if (method_parameters != 0){
+									ParameterDefList::iterator it = method_parameters->begin();
+									while (it!=method_parameters->end()){
+											ParameterDef* n = *it;
+											if (!ExistTemp(n->parameter_name) && !ExistVarGlobal(n->parameter_name) ){
+													ResultValue r;
+													r.type = n->parameter_type;
+													varsTemp[n->parameter_name] = r;
+													//cout << name << " Parametro: " << n->parameter_name << "  Tipo: " << r.type << endl;
+											}
+											else
+													cout <<" ERROR: \'" << n->parameter_name << "\' Parametro ya declarado en " << name << " o Variable ya existe." << endl;
+											it++;
+									}
+							}
+							if (method_body != 0){
+									method_body->ExecuteStatement();
+							}
+//							cout << " Metodo: " << name << " Tipo: " << methods[name] << endl;
+				}
+				else
+					cout << " ERROR: \'"<< name <<"\' ya existe"<<endl;
+		}
+
+		bool ExistMethod(string key){
+				map<string, Type>::iterator it = methods.find(key);
+				if ( it != methods.end())
+						return true;
+				return false;
+		}
+
+		bool ExistTemp(string key){
+				map<string, ResultValue>::iterator it = varsTemp.find(key);
+				if ( it != varsTemp.end())
+						return true;
+				return false;
+		}
+
+		bool ExistVarGlobal(string key){
+				map<string, ResultValue>::iterator it = vars.find(key);
+				if ( it != vars.end())
+						return true;
+				return false;
+		}
+
 		Type method_return_type;
 		ParameterDefList *method_parameters;
 		Statement *method_body;

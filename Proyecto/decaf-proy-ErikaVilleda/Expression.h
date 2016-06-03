@@ -12,6 +12,7 @@
 #include <list>
 #include <cstring>
 #include <cstdlib>
+#include <map>
 #include "Value.h"
 #include "Util.h"
 
@@ -23,8 +24,7 @@ enum ExpressionKind
 	ekUnary,
 	ekLValue,
 	ekMethodCall,
-	ekConstant,
-	ekArrayExpression
+	ekConstant
 };
 
 /*
@@ -69,12 +69,16 @@ enum ExpressionOperator
 	OpRot
 };
 
+bool ExistVarGlobal(string key);
+bool ExistVarTemp(string key);
+
 class Expression
 {
 	public:
 		virtual ExpressionKind GetKind() = 0;
 		virtual ResultValue Evaluate() = 0;
 		virtual string ToString() = 0;
+		//virtual ResultValue getCode() = 0; TODO
 };
 
 typedef list<Expression *> ExpressionList;
@@ -212,12 +216,9 @@ class ConstantExpression: public Expression
 				free(constant_value.string_value);
 		}
 
-		virtual ExpressionKind GetKind()
-		{
-			return ekConstant;
-		}
+		virtual ExpressionKind GetKind() { return ekConstant; }
 
-		virtual ResultValue Evaluate();
+		virtual ResultValue Evaluate(); // DONE
 		virtual string ToString();
 
 		Type constant_type;
@@ -229,26 +230,5 @@ class ConstantExpression: public Expression
 		} constant_value;
 };
 
-class ArrayExpression: public Expression
-{
-	public:
-		ArrayExpression(int value)
-		{
-			this->value = value;
-		}
-
-		~ArrayExpression()
-		{		}
-
-		virtual ExpressionKind GetKind()
-		{
-			return ekArrayExpression;
-		}
-
-		virtual ResultValue Evaluate();
-		virtual string ToString();
-
-		int value;
-};
 
 #endif /* EXPRESSION_H_ */
