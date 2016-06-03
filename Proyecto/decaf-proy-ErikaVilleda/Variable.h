@@ -25,7 +25,6 @@ class VariableDef : public FieldMethodDef
 public:
 	VariableDef(string name, int line, int column) : FieldMethodDef(name)
 	{
-		//variable_name = name;
 		is_array_def = false;
 		initial_value = 0;
 		this->line = line;
@@ -65,13 +64,6 @@ public:
 			}
 			else
 					cout << " ERROR: " << line << "," << column << ": " << name << " ya ha sido declarada. "<< endl;
-	}
-
-	bool ExistVarGlobal(string key){
-		map<string, ResultValue>::iterator it = vars.find(key);
-		if ( it != vars.end())
-				return true;
-		return false;
 	}
 
 	Type variable_type;

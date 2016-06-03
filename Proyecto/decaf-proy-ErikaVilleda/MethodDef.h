@@ -91,7 +91,7 @@ class MethodDef : public FieldMethodDef
 									ParameterDefList::iterator it = method_parameters->begin();
 									while (it!=method_parameters->end()){
 											ParameterDef* n = *it;
-											if (!ExistTemp(n->parameter_name) && !ExistVarGlobal(n->parameter_name) ){
+											if (!ExistVarTemp(n->parameter_name) && !ExistVarGlobal(n->parameter_name) ){
 													ResultValue r;
 													r.type = n->parameter_type;
 													varsTemp[n->parameter_name] = r;
@@ -105,6 +105,16 @@ class MethodDef : public FieldMethodDef
 							if (method_body != 0){
 									method_body->ExecuteStatement();
 							}
+
+							if(method_parameters!=0){
+									//cout << " Release ParameterDefList"<<endl;
+									ParameterDefList::iterator it = method_parameters->begin();
+									while (it!=method_parameters->end()){
+											ParameterDef* n = *it;
+											varsTemp.erase(n->parameter_name);
+											it++;
+									}
+							}
 //							cout << " Metodo: " << name << " Tipo: " << methods[name] << endl;
 				}
 				else
@@ -114,20 +124,6 @@ class MethodDef : public FieldMethodDef
 		bool ExistMethod(string key){
 				map<string, Type>::iterator it = methods.find(key);
 				if ( it != methods.end())
-						return true;
-				return false;
-		}
-
-		bool ExistTemp(string key){
-				map<string, ResultValue>::iterator it = varsTemp.find(key);
-				if ( it != varsTemp.end())
-						return true;
-				return false;
-		}
-
-		bool ExistVarGlobal(string key){
-				map<string, ResultValue>::iterator it = vars.find(key);
-				if ( it != vars.end())
 						return true;
 				return false;
 		}

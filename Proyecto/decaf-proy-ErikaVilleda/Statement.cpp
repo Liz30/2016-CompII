@@ -16,32 +16,45 @@
  */
 void AssignmentStatement::ExecuteStatement()
 {
-	/* TODO: Implementar AssignmentStatement::ExecuteStatement() */
-
 		ResultValue lvalue_r = lvalue->Evaluate();
 		ResultValue rvalue_r = expr->Evaluate();
 		LValueExpression* n = (LValueExpression*)lvalue;
 
 		if (!ExistVarGlobal(n->variable_name) && !ExistVarTemp(n->variable_name)){
-					cout << "ERROR: Variable \'" << n->variable_name << "\' no ha sido declarada."<<endl;
+					cout << "("<<line<<","<<column<<"): Variable \'" << n->variable_name << "\' no ha sido declarada."<<endl;
 		}
 		else if (lvalue_r.type == rvalue_r.type){
 				if (ExistVarGlobal(n->variable_name)){
-						//cout << "Es Global "<<n->variable_name<<endl;
 						vars[n->variable_name] = rvalue_r;
 				}
 				if (ExistVarTemp(n->variable_name)){
-						//cout << "Es Temporal "<<n->variable_name<<endl;
 						varsTemp[n->variable_name] = rvalue_r;
 				}
 		}
 		else
-				cout << " ERROR => Variable: \'"<< n->variable_name << "\' No se puede convertir \'" << TypeToString(rvalue_r.type) << "\' a \'" << TypeToString(lvalue_r.type) << "\'"<<endl;
+				cout << "("<<line<<","<<column<<"): Variable \'"<< n->variable_name << "\' No se puede convertir \'" << TypeToString(rvalue_r.type) << "\' a \'" << TypeToString(lvalue_r.type) << "\'"<<endl;
 }
 
 void MethodCallStatement::ExecuteStatement()
 {
-	/* TODO: Implementar MethodCallStatement::ExecuteStatement() */
+	if (name=="print"){
+			ExpressionList::iterator it = arguments->begin();
+			while (it!=arguments->end()){
+					Expression* n = *it;
+					ResultValue nr = n->Evaluate();
+					switch (nr.type){
+						case Int: cout << nr.value.int_value; break;
+						case String: cout << nr.value.string_value; break;
+						case Boolean: cout << nr.value.bool_value; break;
+						default: cout << "("<<line<<","<<column<<"): Tipo de dato no reconocido." << endl;
+					}
+					it++;
+			}
+			cout << endl;
+	}
+	else
+			cout << " Test MethodCallStatement: "<<name<<endl;
+
 }
 
 void IfStatement::ExecuteStatement()

@@ -34,10 +34,21 @@ bool ExistVarTemp(string key){
 ResultValue BinaryExpression::Evaluate()
 {
 	ResultValue value;
+	ResultValue r1 = expr1->Evaluate();
+	ResultValue r2 = expr2->Evaluate();
 
-	/*TODO: Implementar BinaryExpression::Evaluate */
-	if (oper==OpAdd)
-		cout << " suma"<<endl;
+	// Evaluar si son del mismo tipo //
+	switch (oper){
+		case OpAdd:	value.type = r1.type;
+								value.value.int_value = r1.value.int_value + r2.value.int_value; break;
+		case OpSub:	value.type = r1.type;
+								value.value.int_value = r1.value.int_value - r2.value.int_value; break;
+		case OpMul:	value.type = r1.type;
+								value.value.int_value = r1.value.int_value * r2.value.int_value; break;
+		case OpDiv:	value.type = r1.type;
+								value.value.int_value = r1.value.int_value / r2.value.int_value; break;
+	}
+
 
 	return value;
 }
@@ -55,17 +66,14 @@ ResultValue LValueExpression::Evaluate()
 {
 	ResultValue value;
 
-	/*TODO: Implementar LValueExpression::Evaluate */
 	if (ExistVarGlobal(variable_name)){
 		value = vars[variable_name];
-		//cout << " GLOBAL... "<<variable_name << endl;
 	}
 	else if (ExistVarTemp(variable_name)){
 						value = varsTemp[variable_name];
-			//			cout << " TEMPORAL... "<<variable_name << endl;
 	}
 	else{
-			//cout << " ERROR: Variable \'" << variable_name << "\' no esta declarada." << endl;
+			cout << " ERROR: Variable \'"<<variable_name<<"\' no ha sido declarada. "<<endl;
 	}
 
 	return value;

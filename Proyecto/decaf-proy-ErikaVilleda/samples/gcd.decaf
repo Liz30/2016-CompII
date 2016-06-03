@@ -1,16 +1,16 @@
 class GreatestCommonDivisor
 {
-	int a = 10;
-	int b = 20;
+	int aa = 10;
+	int bb = 20;
 	boolean res = true;
 
 	void main()
 	{
 		int x, y, z;
-		x = a;
-		y = b;
-		z = 60;//gcd(x, y);
-
+		int a = 98;
+		x = 10;
+		y = bb;
+		z = (x + y) * 10 / 2;//gcd(x, y);
 		print z;
 	}
 
@@ -18,16 +18,16 @@ class GreatestCommonDivisor
 	int gcd(int a, int b)
 	{
 		boolean test;
-		int x;
-		aa = 9;
-		bb = y;
+		int x = 8;
 		x = 1000;
 		test = true;
-		test = a;
+
 		if (b == 0) {
 			return (a);
 		} else {
 			return (gcd(b, a % b));
 		}
+		print "x: ",x;
+		print "";
 	}
 }
