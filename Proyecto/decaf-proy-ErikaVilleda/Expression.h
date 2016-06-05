@@ -75,10 +75,18 @@ bool ExistVarTemp(string key);
 class Expression
 {
 	public:
+		Expression(int line, int column){
+				this->line = line;
+				this->column = column;
+		}
+		Expression(){}
+
 		virtual ExpressionKind GetKind() = 0;
 		virtual ResultValue Evaluate() = 0;
 		virtual string ToString() = 0;
 		//virtual ResultValue getCode() = 0; TODO
+
+		int line, column;
 };
 
 typedef list<Expression *> ExpressionList;
@@ -86,7 +94,7 @@ typedef list<Expression *> ExpressionList;
 class BinaryExpression: public Expression
 {
 	public:
-		BinaryExpression(Expression *expr1, Expression *expr2, ExpressionOperator oper)
+		BinaryExpression(Expression *expr1, Expression *expr2, ExpressionOperator oper, int line, int column): Expression(line, column)
 		{
 			this->expr1 = expr1;
 			this->expr2 = expr2;
@@ -109,7 +117,7 @@ class BinaryExpression: public Expression
 class UnaryExpression: public Expression
 {
 	public:
-		UnaryExpression(Expression *expr, ExpressionOperator oper)
+		UnaryExpression(Expression *expr, ExpressionOperator oper, int line, int column): Expression(line, column)
 		{
 			this->expr = expr;
 			this->oper = oper;
@@ -136,7 +144,7 @@ class UnaryExpression: public Expression
 class LValueExpression: public Expression
 {
 	public:
-		LValueExpression(string variable_name, Expression *array_index)
+		LValueExpression(string variable_name, Expression *array_index, int line, int column): Expression(line, column)
 		{
 			this->variable_name = variable_name;
 			this->array_index = array_index;
@@ -163,7 +171,7 @@ class LValueExpression: public Expression
 class MethodCallExpression: public Expression
 {
 	public:
-		MethodCallExpression(string method_name, ExpressionList *method_arguments)
+		MethodCallExpression(string method_name, ExpressionList *method_arguments, int line, int column): Expression(line, column)
 		{
 			this->method_name = method_name;
 			this->method_arguments = method_arguments;
@@ -192,19 +200,19 @@ class MethodCallExpression: public Expression
 class ConstantExpression: public Expression
 {
 	public:
-		ConstantExpression(int value)
+		ConstantExpression(int value, int line, int column): Expression(line, column)
 		{
 			constant_type = Int;
 			constant_value.int_value = value;
 		}
 
-		ConstantExpression(bool value)
+		ConstantExpression(bool value, int line, int column): Expression(line, column)
 		{
 			constant_type = Boolean;
 			constant_value.bool_value = value;
 		}
 
-		ConstantExpression(char *value)
+		ConstantExpression(char *value, int line, int column): Expression(line, column)
 		{
 			constant_type = String;
 			constant_value.string_value = strdup(value);

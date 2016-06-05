@@ -22,6 +22,13 @@ struct YYLTYPE {
     int last_column;
 };
 
+struct Error {
+    int n;
+    string mensaje;
+};
+
+typedef Error Error;
+
 ////////////////
 
 /*

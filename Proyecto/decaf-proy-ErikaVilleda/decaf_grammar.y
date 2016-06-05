@@ -230,13 +230,13 @@ method_call_argument_list(A)::= expr(B)	.																			{ A = new Expression
 print_argument_list(A)::=	print_argument_list(B) T_COMMA print_argument(D).	{ A = B; A->push_back(D); }
 print_argument_list(A)::= print_argument(B).																{ A = new ExpressionList; A->push_back(B); }
 
-print_argument(A)::= STRING_CONSTANT(B)	.	{ A = new ConstantExpression(B->strValue); }
+print_argument(A)::= STRING_CONSTANT(B)	.	{ A = new ConstantExpression(B->strValue, yylloc->first_line, yylloc->first_column); }
 print_argument(A)::= expr(B)	.								{ A = B; }
 
 read_argument_list(A)::= read_argument_list(B) T_COMMA lvalue(D).	{ A = B; A->push_back(D); }
 read_argument_list(A)::= lvalue(B).																{ A = new ExpressionList; A->push_back(B); }
 
-lvalue(A)::= 	ID(B) opt_array_dimension(C).	{ A = new LValueExpression(B->strValue, C); }
+lvalue(A)::= 	ID(B) opt_array_dimension(C).	{ A = new LValueExpression(B->strValue, C, yylloc->first_line, yylloc->first_column); }
 
 opt_array_dimension(A)::=	T_OBRACKET expr(C) T_CBRACKET.	{ A = C; }
 opt_array_dimension(A)::= .																{ A = 0; }
@@ -263,35 +263,35 @@ continue_statement(A)::= K_CONTINUE.	{ A = new ContinueStatement(yylloc->first_l
 opt_expr(A)::= expr(B).		{ A = B; }
 opt_expr(A)::= .					{ A = 0; }
 
-expr(A)::= expr(B) BOOL_OP_OR(C) bool_term(D).	{ A = new BinaryExpression(B, D, C->oper); }
+expr(A)::= expr(B) BOOL_OP_OR(C) bool_term(D).	{ A = new BinaryExpression(B, D, C->oper, yylloc->first_line, yylloc->first_column); }
 expr(A)::= bool_term(B)	.												{ A = B; }
 
-bool_term(A)::= bool_term(B) BOOL_OP_AND(C) relational_expr(D).	{ A = new BinaryExpression(B, D, C->oper); }
+bool_term(A)::= bool_term(B) BOOL_OP_AND(C) relational_expr(D).	{ A = new BinaryExpression(B, D, C->oper, yylloc->first_line, yylloc->first_column); }
 bool_term(A)::= relational_expr(B).															{ A = B; }
 
-relational_expr(A)::= relational_expr(B)  REL_OP(C) bit_shift_expr(D).	{ A = new BinaryExpression(B, D, C->oper); }
+relational_expr(A)::= relational_expr(B)  REL_OP(C) bit_shift_expr(D).	{ A = new BinaryExpression(B, D, C->oper, yylloc->first_line, yylloc->first_column); }
 relational_expr(A)::= bit_shift_expr(B).																{ A = B; }
 
-bit_shift_expr(A)::= bit_shift_expr(B) BIT_SHIFT_OP(C) arith_expr(D).	{ A = new BinaryExpression(B, D, C->oper); }
+bit_shift_expr(A)::= bit_shift_expr(B) BIT_SHIFT_OP(C) arith_expr(D).	{ A = new BinaryExpression(B, D, C->oper, yylloc->first_line, yylloc->first_column); }
 bit_shift_expr(A)::= arith_expr(B).																		{ A = B; }
 
-arith_expr(A)::= arith_expr(B) ARITH_OP_SUM(C) arith_term(D).		{ A = new BinaryExpression(B, D, C->oper); }
+arith_expr(A)::= arith_expr(B) ARITH_OP_SUM(C) arith_term(D).		{ A = new BinaryExpression(B, D, C->oper, yylloc->first_line, yylloc->first_column); }
 arith_expr(A)::= arith_term(B).																	{ A = B; }
 
-arith_term(A)::= arith_term(B) ARITH_OP_MUL(C)	factor(D).	{ A = new BinaryExpression(B, D, C->oper); }
+arith_term(A)::= arith_term(B) ARITH_OP_MUL(C)	factor(D).	{ A = new BinaryExpression(B, D, C->oper, yylloc->first_line, yylloc->first_column); }
 arith_term(A)::= factor(B).																	{ A = B; }
 
-factor(A)::= T_NOT factor(C).																								{ A = new UnaryExpression(C, OpNot); }
-factor(A)::= ARITH_OP_SUM(B) factor(C).																			{ A = new UnaryExpression(C, B->oper); }
+factor(A)::= T_NOT factor(C).																								{ A = new UnaryExpression(C, OpNot, yylloc->first_line, yylloc->first_column); }
+factor(A)::= ARITH_OP_SUM(B) factor(C).																			{ A = new UnaryExpression(C, B->oper, yylloc->first_line, yylloc->first_column); }
 factor(A)::= lvalue(B).																											{ A = B; }
-factor(A)::= method_name(B) T_OPAR opt_method_call_argument_list(D) T_CPAR.	{ A = new MethodCallExpression(B, D); }
+factor(A)::= method_name(B) T_OPAR opt_method_call_argument_list(D) T_CPAR.	{ A = new MethodCallExpression(B, D, yylloc->first_line, yylloc->first_column); }
 factor(A)::= constant(B).																										{ A = B; }
 factor(A)::= T_OPAR expr(C) T_CPAR.																					{ A = C; }
 
-constant(A)::= INT_CONSTANT(B).  { A = new ConstantExpression(B->intValue); }
-constant(A)::= CHAR_CONSTANT(B). { A = new ConstantExpression(B); }
-constant(A)::= REAL_CONSTANT(B). { A = new ConstantExpression(B); }
+constant(A)::= INT_CONSTANT(B).  { A = new ConstantExpression(B->intValue, yylloc->first_line, yylloc->first_column); }
+constant(A)::= CHAR_CONSTANT(B). { A = new ConstantExpression(B, yylloc->first_line, yylloc->first_column); }
+constant(A)::= REAL_CONSTANT(B). { A = new ConstantExpression(B, yylloc->first_line, yylloc->first_column); }
 constant(A)::= bool_constant(B). { A = B; }
 
-bool_constant(A)::= K_TRUE.		{ A = new ConstantExpression(true); }
-bool_constant(A)::= K_FALSE.	{ A = new ConstantExpression(false); }
+bool_constant(A)::= K_TRUE.		{ A = new ConstantExpression(true, yylloc->first_line, yylloc->first_column); }
+bool_constant(A)::= K_FALSE.	{ A = new ConstantExpression(false, yylloc->first_line, yylloc->first_column); }

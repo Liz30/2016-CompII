@@ -57,7 +57,7 @@ class MethodDef : public FieldMethodDef
 					it++;
 				}
 
-				varsTemp.clear();
+				//varsTemp.clear();
 				method_parameters->clear();
 				delete method_parameters;
 			}
@@ -65,7 +65,7 @@ class MethodDef : public FieldMethodDef
 			if (method_body != 0)
 				delete method_body;
 
-			methods.erase(name);
+			//methods.erase(name);
 		}
 
 		virtual string ToString()
@@ -87,6 +87,7 @@ class MethodDef : public FieldMethodDef
 				if (!ExistMethod(name)){
 							cout << "METHOD: " << name << endl;
 							methods[name] = method_return_type;
+
 							if (method_parameters != 0){
 									ParameterDefList::iterator it = method_parameters->begin();
 									while (it!=method_parameters->end()){
@@ -98,13 +99,15 @@ class MethodDef : public FieldMethodDef
 													//cout << name << " Parametro: " << n->parameter_name << "  Tipo: " << r.type << endl;
 											}
 											else
-													cout <<" ERROR: \'" << n->parameter_name << "\' Parametro ya declarado en " << name << " o Variable ya existe." << endl;
+													cout <<" ERROR en MethodDef: \'" << n->parameter_name << "\' Parametro ya declarado en " << name << " o Variable ya existe." << endl;
 											it++;
 									}
 							}
+
 							if (method_body != 0){
 									method_body->ExecuteStatement();
 							}
+							else cout << " Statement 0"<<endl;
 
 							if(method_parameters!=0){
 									//cout << " Release ParameterDefList"<<endl;
@@ -118,7 +121,7 @@ class MethodDef : public FieldMethodDef
 //							cout << " Metodo: " << name << " Tipo: " << methods[name] << endl;
 				}
 				else
-					cout << " ERROR: \'"<< name <<"\' ya existe"<<endl;
+					cout << " ERROR en MethodDef: \'"<< name <<"\' ya existe"<<endl;
 		}
 
 		bool ExistMethod(string key){

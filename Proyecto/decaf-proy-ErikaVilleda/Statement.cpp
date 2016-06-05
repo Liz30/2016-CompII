@@ -32,7 +32,7 @@ void AssignmentStatement::ExecuteStatement()
 				}
 		}
 		else
-				cout << "("<<line<<","<<column<<"): Variable \'"<< n->variable_name << "\' No se puede convertir \'" << TypeToString(rvalue_r.type) << "\' a \'" << TypeToString(lvalue_r.type) << "\'"<<endl;
+				cout << " ERROR en Statement ("<<line<<","<<column<<"): Variable \'"<< n->variable_name << "\' No se puede convertir \'" << TypeToString(rvalue_r.type) << "\' a \'" << TypeToString(lvalue_r.type) << "\'"<<endl;
 }
 
 void MethodCallStatement::ExecuteStatement()
@@ -42,6 +42,8 @@ void MethodCallStatement::ExecuteStatement()
 			while (it!=arguments->end()){
 					Expression* n = *it;
 					ResultValue nr = n->Evaluate();
+					//Revisar si exite la variable para evitar
+					// imprimir muchos errores
 					switch (nr.type){
 						case Int: cout << nr.value.int_value; break;
 						case String: cout << nr.value.string_value; break;
@@ -59,12 +61,34 @@ void MethodCallStatement::ExecuteStatement()
 
 void IfStatement::ExecuteStatement()
 {
-	/* TODO: Implementar IfStatement::ExecuteStatement() */
+		ResultValue r = condition->Evaluate();
+
+		if (TypeToString(r.type)!="None"){
+				if (r.value.bool_value){
+						if (true_part!=0)
+								true_part->ExecuteStatement();
+				}
+				else{
+						if (false_part!=0)
+								false_part->ExecuteStatement();
+				}
+		}
+		else
+				cout << " ERROR en If ("<<line<<","<<column<<"): Condicion no pudo evaluarse."<<endl;
 }
 
 void WhileStatement::ExecuteStatement()
 {
-	/* TODO: Implementar WhileStatement::ExecuteStatement() */
+		ResultValue r = condition->Evaluate();
+
+		if (TypeToString(r.type)!="None"){
+			while (r.value.bool_value){
+					loop_body->ExecuteStatement();
+					r = condition->Evaluate();
+			}
+		}
+		else
+				cout << " ERROR en While ("<<line<<","<<column<<"): Condicion no pudo evaluarse."<<endl;
 }
 
 void ForStatement::ExecuteStatement()
@@ -95,13 +119,12 @@ void BlockStatement::ExecuteStatement()
 					VariableDef* n = *itv;
 
 					if (!ExistVarTemp(n->name) && !ExistVarGlobal(n->name)){
-							//n->Execute();
 							ResultValue r;
 							r.type = n->variable_type;
 							if (n->initial_value!=0){
 									r = n->initial_value->Evaluate();
 									if (r.type != n->variable_type){
-											cout << " ERROR: " << n->line << "," << n->column << ": No se puede convertir " << TypeToString(n->variable_type) << " a " << TypeToString(r.type) << endl;
+											cout << " ERROR en Statement (" << n->line << "," << n->column << "): No se puede convertir " << TypeToString(n->variable_type) << " a " << TypeToString(r.type) << endl;
 											r.type = n->variable_type;
 									}
 							}
@@ -109,7 +132,7 @@ void BlockStatement::ExecuteStatement()
 							//cout << "  BlockST: " << n->name << "  Tipo: " << r.type << endl;
 					}
 					else
-							cout << " ERROR: " << n->line << "," << n->column << ": Variable \'" << n->name << "\' ya ha sido declarada." << endl;
+							cout << " ERROR en Statement (" << n->line << "," << n->column << "): Variable \'" << n->name << "\' ya ha sido declarada." << endl;
 					itv++;
 				}
 
@@ -120,7 +143,7 @@ void BlockStatement::ExecuteStatement()
 				while (its!=statement_list->end()){
 						Statement* n = *its;
 						n->ExecuteStatement();
-					//	cout << n->GetKind()<<endl;
+						//cout << n->GetKind()<<endl;
 						its++;
 				}
 	  }
@@ -136,11 +159,13 @@ void BlockStatement::ExecuteStatement()
 		}*/
 
 		// Release Temp //
-		VariableDefList::iterator it = variable_def_list->begin();
-		while (it!=variable_def_list->end()){
-			VariableDef* n = *it;
-			varsTemp.erase(n->name);
-			it++;
+		if (variable_def_list!=0){
+				VariableDefList::iterator it = variable_def_list->begin();
+				while (it!=variable_def_list->end()){
+					VariableDef* n = *it;
+					varsTemp.erase(n->name);
+					it++;
+				}
 		}
 }
 

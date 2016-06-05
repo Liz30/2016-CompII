@@ -12,10 +12,14 @@ class Factorial
 	// Funcion que calcula el factorial
 	int factorial(int n)
 	{
+		print "if";
 		if (n == 0) {
 			return (1);
+			print "a";
 		} else {
 			return n * factorial(n-1);
+			print "b ", n;
 		}
+		print 40;
 	}
 }

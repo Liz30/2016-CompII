@@ -12,6 +12,7 @@ class GreatestCommonDivisor
 		y = bb;
 		z = (x + y) * 10 / 2;//gcd(x, y);
 		print z;
+		print 10 % 4;
 	}
 
 	// Funcion que calcula el maximo comun divisor
@@ -22,10 +23,12 @@ class GreatestCommonDivisor
 		x = 1000;
 		test = true;
 
-		if (b == 0) {
-			return (a);
+		if (aa > 0 && aa <= 10) {
+			//return (a);
+			print "true";
 		} else {
-			return (gcd(b, a % b));
+			print "false";
+			//return (gcd(b, a % b));
 		}
 		print "x: ",x;
 		print "";

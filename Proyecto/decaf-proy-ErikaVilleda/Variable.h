@@ -56,14 +56,14 @@ public:
 					if (initial_value!=0){
 							r = initial_value->Evaluate();
 							if (r.type != variable_type){
-									cout << " ERROR: " << line << "," << column << ": No se puede convertir " << TypeToString(variable_type) << " a " << TypeToString(r.type) << endl;
+									cout << " ERROR en Variable: " << line << "," << column << ": No se puede convertir " << TypeToString(variable_type) << " a " << TypeToString(r.type) << endl;
 									r.type = variable_type;
 							}
 					}
 					vars[name] = r;
 			}
 			else
-					cout << " ERROR: " << line << "," << column << ": " << name << " ya ha sido declarada. "<< endl;
+					cout << " ERROR en Variable: " << line << "," << column << ": " << name << " ya ha sido declarada. "<< endl;
 	}
 
 	Type variable_type;

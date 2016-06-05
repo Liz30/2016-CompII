@@ -7,15 +7,15 @@ class Program
 
    void main()
    {
-      int a, c, op;
+      int a, c;
       boolean s,t;
 
       a = callout(max(r[(6+0999)*i]),b);
-      //if (a < 100 && a > 10)
+      if (a < 100 && a > 10)
       {
          s = true;
          t = false;
-         print op;
+         print a;
       }
    }
 
@@ -30,16 +30,15 @@ class Program
       int tmp;
       int miMax;
       tmp = 0;
+
+      op = 30;
+
       miMax = 0;
-      while (tmp < 50)
+      while (tmp < 10)
       {
-         boolean otro;
-         if (x > miMax)
-         {
-            miMax = x;
-            otro = false;
-         }
+        tmp = tmp + 1;
       }
+      print miMax;
       return miMax;
    }
 }

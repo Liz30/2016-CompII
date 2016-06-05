@@ -37,27 +37,58 @@ ResultValue BinaryExpression::Evaluate()
 	ResultValue r1 = expr1->Evaluate();
 	ResultValue r2 = expr2->Evaluate();
 
-	// Evaluar si son del mismo tipo //
-	switch (oper){
-		case OpAdd:	value.type = r1.type;
-								value.value.int_value = r1.value.int_value + r2.value.int_value; break;
-		case OpSub:	value.type = r1.type;
-								value.value.int_value = r1.value.int_value - r2.value.int_value; break;
-		case OpMul:	value.type = r1.type;
-								value.value.int_value = r1.value.int_value * r2.value.int_value; break;
-		case OpDiv:	value.type = r1.type;
-								value.value.int_value = r1.value.int_value / r2.value.int_value; break;
-	}
-
-
+	if (r1.type == r2.type){
+				switch (oper){
+					case OpAdd:	value.type = r1.type;
+											value.value.int_value = r1.value.int_value + r2.value.int_value; break;
+					case OpSub:	value.type = r1.type;
+											value.value.int_value = r1.value.int_value - r2.value.int_value; break;
+					case OpMul:	value.type = r1.type;
+											value.value.int_value = r1.value.int_value * r2.value.int_value; break;
+					case OpDiv:	value.type = r1.type;
+											value.value.int_value = r1.value.int_value / r2.value.int_value; break;
+					case OpMod:	value.type = r1.type;
+											value.value.int_value = r1.value.int_value % r2.value.int_value; break;
+					case OpOr:	value.type = r1.type;
+											value.value.bool_value = r1.value.bool_value || r2.value.bool_value; break;
+					case OpAnd:	value.type = r1.type;
+											value.value.bool_value = r1.value.bool_value && r2.value.bool_value; break;
+					case OpGT:	value.type = r1.type;
+											value.value.bool_value = r1.value.bool_value > r2.value.bool_value; break;
+					case OpLT:	value.type = r1.type;
+											value.value.bool_value = r1.value.bool_value < r2.value.bool_value; break;
+					case OpGTE:	value.type = r1.type;
+											value.value.bool_value = r1.value.bool_value >= r2.value.bool_value; break;
+					case OpLTE:	value.type = r1.type;
+											value.value.bool_value = r1.value.bool_value <= r2.value.bool_value; break;
+					case OpEq:	value.type = r1.type;
+											value.value.bool_value = r1.value.bool_value == r2.value.bool_value; break;
+					case OpNotEq:	value.type = r1.type;
+											value.value.bool_value = r1.value.bool_value != r2.value.bool_value; break;
+					case OpRShift:	value.type = r1.type;
+											value.value.int_value = r1.value.int_value >> r2.value.int_value; break;
+					case OpLShift:	value.type = r1.type;
+											value.value.int_value = r1.value.int_value << r2.value.int_value; break;
+					/*case OpRot:	value.type = r1.type;
+											value.value.int_value = r1.value.int_value << r2.value.int_value; break;					*/
+				}
+	} else
+			cout << " ERROR en Expression ("<<line<<","<<column<<"): No puede convertirse \'" << TypeToString(r2.type) << "\' a \'" << TypeToString(r1.type) << "\' " << endl;
 	return value;
 }
 
 ResultValue UnaryExpression::Evaluate()
 {
 	ResultValue value;
+	ResultValue r1 = expr->Evaluate();
 
-	/*TODO: Implementar UnaryExpression::Evaluate */
+	switch (oper){
+		case OpNot: value.type = r1.type;
+								value.value.bool_value = ! (r1.value.bool_value);
+								break;
+		case OpAdd: break;
+		case OpSub: break;
+	}
 
 	return value;
 }
@@ -73,7 +104,7 @@ ResultValue LValueExpression::Evaluate()
 						value = varsTemp[variable_name];
 	}
 	else{
-			cout << " ERROR: Variable \'"<<variable_name<<"\' no ha sido declarada. "<<endl;
+			cout << " ERROR en Expression ("<<line<<","<<column<<"): Variable \'"<<variable_name<<"\' no ha sido declarada. "<<endl;
 	}
 
 	return value;
@@ -84,6 +115,8 @@ ResultValue MethodCallExpression::Evaluate()
 	ResultValue value;
 
 	/*TODO: Implementar MethodCallExpression::Evaluate */
+
+
 
 	return value;
 }
