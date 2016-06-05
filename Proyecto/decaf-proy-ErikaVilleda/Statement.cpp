@@ -25,7 +25,9 @@ void AssignmentStatement::ExecuteStatement()
 		}
 		else if (lvalue_r.type == rvalue_r.type){
 				if (ExistVarGlobal(n->variable_name)){
+						//cout << " Variable Global: "<<n->variable_name;
 						vars[n->variable_name] = rvalue_r;
+						//cout << "  " <<TypeToString(rvalue_r.type)<<"  "<<rvalue_r.value.int_value<<endl;
 				}
 				if (ExistVarTemp(n->variable_name)){
 						varsTemp[n->variable_name] = rvalue_r;
@@ -93,7 +95,18 @@ void WhileStatement::ExecuteStatement()
 
 void ForStatement::ExecuteStatement()
 {
-	/* TODO: Implementar ForStatement::ExecuteStatement() */
+		assignment_list1->ExecuteStatement();
+		ResultValue r = condition->Evaluate();
+
+		if (TypeToString(r.type)!="None"){
+				while (r.value.bool_value){
+						loop_body->ExecuteStatement();
+						assignment_list2->ExecuteStatement();
+						r = condition->Evaluate();
+				}
+		}
+		else
+				cout << " ERROR en For ("<<line<<","<<column<<"): Condicion no pudo evaluarse."<<endl;
 }
 
 void ReturnStatement::ExecuteStatement()
@@ -147,16 +160,6 @@ void BlockStatement::ExecuteStatement()
 						its++;
 				}
 	  }
-
-		/*cout<<endl<<"TEMP......"<<endl;
-		map<string, ResultValue>::iterator iv = varsTemp.begin();
-		for (iv; iv!=varsTemp.end(); iv++){
-				cout << "  Temp[" << iv->first << "] => Tipo: " << iv->second.type << " Valor: ";
-				switch (iv->second.type){
-					case Int: cout << iv->second.value.int_value << endl; break;
-					case Boolean: cout << iv->second.value.bool_value << endl; break;
-			 }
-		}*/
 
 		// Release Temp //
 		if (variable_def_list!=0){

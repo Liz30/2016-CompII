@@ -1,41 +1,45 @@
 class Test {
   boolean a, b;
-  int i = 90; int m;
+  int i = 10; int m;
 
   void main()
   {
-    boolean test;
-    test = true;
-    print !test;
+
   }
 
-  void g (boolean u){
-    boolean f;
-    int y;
-    u = false;
-    f = true;
-    y = 100;
+  void whileTest(){
+    int tmp, miMax, op;
+    tmp = 0;
+    op = 30;
+    miMax = 0;
 
-    print "f: ", f, "    u: ", u;
-    print "   && ", f && u;
-    print "   || ", f || u;
-    print "   == ", f << u;
+    while (tmp < 10)
+    {
+        if (op > miMax){
+            miMax = op;
+        }
+      tmp = tmp + 1;
+    }
+    print "Max: ",miMax;
+    return miMax;
   }
 
-  void is(int d){
-    int f;
-    f = 10;  // No declarada, bugs es que f en g() la declara global
-    print  f;
-  }
-
-  void test(){
+  void ifTest(){
       if ((i+20) > 10){
         print " i es menor a 10";
       }
       else{
           print " i es mayor a 10";
       }
-
   }
+
+  int forTest(){
+    int y;
+    for (m=0, y=i; m < i; m=m+1, y = y + 10){
+      print "i: ", i, "  m: ", m, "  y: ",y;
+    }
+    //print m;
+  }
+
 
 }

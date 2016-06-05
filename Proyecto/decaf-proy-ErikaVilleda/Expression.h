@@ -71,6 +71,7 @@ enum ExpressionOperator
 
 bool ExistVarGlobal(string key);
 bool ExistVarTemp(string key);
+void ShowTemp();
 
 class Expression
 {

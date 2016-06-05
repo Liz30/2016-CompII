@@ -14,6 +14,19 @@ using namespace std;
 extern map<string, ResultValue> vars;
 extern map<string, ResultValue> varsTemp;
 
+
+void ShowTemp(){
+		cout<<endl<<"TEMP......"<<endl;
+		map<string, ResultValue>::iterator iv = varsTemp.begin();
+		for (iv; iv!=varsTemp.end(); iv++){
+				cout << "  Temp[" << iv->first << "] => Tipo: " << iv->second.type << " Valor: ";
+				switch (iv->second.type){
+					case Int: cout << iv->second.value.int_value << endl; break;
+					case Boolean: cout << iv->second.value.bool_value << endl; break;
+			 }
+		}
+}
+
 bool ExistVarGlobal(string key){
 	map<string, ResultValue>::iterator it = vars.find(key);
 	if ( it != vars.end())
@@ -49,21 +62,21 @@ ResultValue BinaryExpression::Evaluate()
 											value.value.int_value = r1.value.int_value / r2.value.int_value; break;
 					case OpMod:	value.type = r1.type;
 											value.value.int_value = r1.value.int_value % r2.value.int_value; break;
-					case OpOr:	value.type = r1.type;
+					case OpOr:	value.type = Boolean;
 											value.value.bool_value = r1.value.bool_value || r2.value.bool_value; break;
-					case OpAnd:	value.type = r1.type;
+					case OpAnd:	value.type = Boolean;
 											value.value.bool_value = r1.value.bool_value && r2.value.bool_value; break;
-					case OpGT:	value.type = r1.type;
+					case OpGT:	value.type = Boolean;
 											value.value.bool_value = r1.value.bool_value > r2.value.bool_value; break;
-					case OpLT:	value.type = r1.type;
+					case OpLT:	value.type = Boolean;
 											value.value.bool_value = r1.value.bool_value < r2.value.bool_value; break;
-					case OpGTE:	value.type = r1.type;
+					case OpGTE:	value.type = Boolean;
 											value.value.bool_value = r1.value.bool_value >= r2.value.bool_value; break;
-					case OpLTE:	value.type = r1.type;
+					case OpLTE:	value.type = Boolean;
 											value.value.bool_value = r1.value.bool_value <= r2.value.bool_value; break;
-					case OpEq:	value.type = r1.type;
+					case OpEq:	value.type = Boolean;
 											value.value.bool_value = r1.value.bool_value == r2.value.bool_value; break;
-					case OpNotEq:	value.type = r1.type;
+					case OpNotEq:	value.type = Boolean;
 											value.value.bool_value = r1.value.bool_value != r2.value.bool_value; break;
 					case OpRShift:	value.type = r1.type;
 											value.value.int_value = r1.value.int_value >> r2.value.int_value; break;
