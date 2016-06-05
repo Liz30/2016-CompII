@@ -32,7 +32,7 @@ enum StatementKind
 
 extern map<string, ResultValue> vars;
 extern map<string, ResultValue> varsTemp;
-extern map<string, Type> methods;
+extern map<string, ResultValue> methods;
 
 class Statement
 {

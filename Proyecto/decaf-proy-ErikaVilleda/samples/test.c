@@ -2,12 +2,7 @@ class Test {
   boolean a, b;
   int i = 10; int m;
 
-  void main()
-  {
-
-  }
-
-  void whileTest(){
+  int whileTest(int y, boolean g){
     int tmp, miMax, op;
     tmp = 0;
     op = 30;
@@ -24,6 +19,11 @@ class Test {
     return miMax;
   }
 
+  void main()
+  {
+      m = whileTest(8, false);
+  }
+
   void ifTest(){
       if ((i+20) > 10){
         print " i es menor a 10";
@@ -36,9 +36,13 @@ class Test {
   int forTest(){
     int y;
     for (m=0, y=i; m < i; m=m+1, y = y + 10){
-      print "i: ", i, "  m: ", m, "  y: ",y;
+      //print "i: ", i, "  m: ", m, "  y: ",y;
     }
     //print m;
+  }
+
+  void q(){
+
   }
 
 

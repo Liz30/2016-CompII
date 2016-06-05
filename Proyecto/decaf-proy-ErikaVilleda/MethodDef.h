@@ -18,7 +18,7 @@
 
 using namespace std;
 extern map<string, ResultValue> varsTemp;
-extern map<string, Type> methods;
+extern map<string, ResultValue> methods;
 
 struct ParameterDef
 {
@@ -86,7 +86,9 @@ class MethodDef : public FieldMethodDef
 		virtual void Execute() {
 				if (!ExistMethod(name)){
 							cout << "METHOD: " << name << endl;
-							methods[name] = method_return_type;
+							ResultValue r;
+							r.type = method_return_type;
+							methods[name] = r;
 
 							if (method_parameters != 0){
 									ParameterDefList::iterator it = method_parameters->begin();
@@ -124,12 +126,6 @@ class MethodDef : public FieldMethodDef
 					cout << " ERROR en MethodDef: \'"<< name <<"\' ya existe"<<endl;
 		}
 
-		bool ExistMethod(string key){
-				map<string, Type>::iterator it = methods.find(key);
-				if ( it != methods.end())
-						return true;
-				return false;
-		}
 
 		Type method_return_type;
 		ParameterDefList *method_parameters;

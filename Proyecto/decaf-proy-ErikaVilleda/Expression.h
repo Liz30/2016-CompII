@@ -13,6 +13,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <map>
+
 #include "Value.h"
 #include "Util.h"
 
@@ -72,6 +73,7 @@ enum ExpressionOperator
 bool ExistVarGlobal(string key);
 bool ExistVarTemp(string key);
 void ShowTemp();
+bool ExistMethod(string key);
 
 class Expression
 {

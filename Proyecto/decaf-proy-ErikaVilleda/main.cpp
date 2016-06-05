@@ -17,7 +17,7 @@ static int errors = 0;
 
 map<string, ResultValue> vars;
 map<string, ResultValue> varsTemp;
-map<string, Type> methods;
+map<string, ResultValue> methods;
 
 ClassDef *class_def;
 string getTokenString(int token, TokenInfo *info);
@@ -106,9 +106,9 @@ int main(int argc, char *argv[])
   }
 
   cout<<endl<<"METHODS......"<<endl;
-  map<string, Type>::iterator im = methods.begin();
+  map<string, ResultValue>::iterator im = methods.begin();
   for (im; im!=methods.end(); im++)
-      cout << "  Temp[" << im->first << "]: " << im->second << endl;
+      cout << "  Temp[" << im->first << "]: " << im->second.type << endl;
 
 	return 0;
 }

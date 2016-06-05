@@ -25,9 +25,7 @@ void AssignmentStatement::ExecuteStatement()
 		}
 		else if (lvalue_r.type == rvalue_r.type){
 				if (ExistVarGlobal(n->variable_name)){
-						//cout << " Variable Global: "<<n->variable_name;
 						vars[n->variable_name] = rvalue_r;
-						//cout << "  " <<TypeToString(rvalue_r.type)<<"  "<<rvalue_r.value.int_value<<endl;
 				}
 				if (ExistVarTemp(n->variable_name)){
 						varsTemp[n->variable_name] = rvalue_r;
@@ -58,6 +56,7 @@ void MethodCallStatement::ExecuteStatement()
 	}
 	else
 			cout << " Test MethodCallStatement: "<<name<<endl;
+	// Valor de retorno lo tiene que guardar en methods[name]
 
 }
 

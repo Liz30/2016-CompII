@@ -70,11 +70,11 @@ class ClassDef
 			out << "class " << name << "\n";
 			out << "{" << "\n";
 
-			/*if (field_def_list != 0)
+			if (field_def_list != 0)
 				out << ListToString(field_def_list, ";\n", true) << "\n";
 
 			if (method_def_list != 0)
-				out << ListToString(method_def_list, "\n\n", true);*/
+				out << ListToString(method_def_list, "\n\n", true);
 
 			if (field_method_def_list != 0){
 					FieldMethodDefList::iterator it = field_method_def_list->begin();
@@ -106,13 +106,36 @@ class ClassDef
 				while(it!=field_method_def_list->end()){
 						FieldMethodDef* n = *it;
 						//cout << " Tipo: " << n->getKind() << endl;
-						n->Execute();
+						if (n->getKind()==METHOD){
+							MethodDef* nuevo = (MethodDef*)n;
+							AddMethod(nuevo);
+							nuevo->Execute();
+						}
+						if (n->getKind()==FIELD){
+							VariableDef* nuevo = (VariableDef*)n;
+							AddFieldDef(nuevo);
+							nuevo->Execute();
+						}
+						//n->Execute();
 						it++;
 				}
+				cout <<endl<< " Variables Globales: "<<field_def_list->size()<<endl;
+				cout <<" Metodos: " << method_def_list->size()<<endl;
+				cout <<" Todos: "<<field_method_def_list->size();
 		}
 
-		void AddFieldDef(VariableDef *field_def);
-		void AddMethod(MethodDef *method_def);
+		void AddFieldDef(VariableDef *field_def){
+				if (field_def_list == 0)
+					field_def_list = new VariableDefList;
+
+				field_def_list->push_back(field_def);
+		}
+		void AddMethod(MethodDef *method_def){
+				if (method_def_list == 0)
+					method_def_list = new MethodDefList;
+
+				method_def_list->push_back(method_def);
+		}
 
 		string name;
 		VariableDefList *field_def_list;

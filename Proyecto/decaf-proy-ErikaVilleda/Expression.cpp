@@ -7,13 +7,22 @@
 
 #include <sstream>
 #include <iostream>
+#include "ClassDef.h"
 #include "Expression.h"
 
 using namespace std;
 
+extern ClassDef *class_def;
 extern map<string, ResultValue> vars;
 extern map<string, ResultValue> varsTemp;
+extern map<string, ResultValue> methods;
 
+bool ExistMethod(string key){
+		map<string, ResultValue>::iterator it = methods.find(key);
+		if ( it != methods.end())
+				return true;
+		return false;
+}
 
 void ShowTemp(){
 		cout<<endl<<"TEMP......"<<endl;
@@ -127,9 +136,51 @@ ResultValue MethodCallExpression::Evaluate()
 {
 	ResultValue value;
 
-	/*TODO: Implementar MethodCallExpression::Evaluate */
+	if (ExistMethod(method_name)){
+			MethodDefList::iterator it = class_def->method_def_list->begin();
+			while (it!=class_def->method_def_list->end()){
+					MethodDef* current = *it;
+					if (current->name.compare(method_name)==0){
+							// asignar los parametros
 
+							if (method_arguments!=0 || current->method_parameters!=0)
+									if ( (method_arguments!=0 && current->method_parameters==0) ||
+											 (method_arguments==0 && current->method_parameters!=0) ){
+												 	cout << " ERROR en Expression ("<<line<<","<<column<<"): Cantidad de argumentos es incorrecto."<<endl;
+									}
+									else{
+											if  (method_arguments->size()==current->method_parameters->size()){
+													cout << "       WWWIIIII..."<<endl;
+													ExpressionList::iterator iexp = method_arguments->begin();
+													ParameterDefList::iterator ipar = current->method_parameters->begin();
+													while (iexp!=method_arguments->end()){
+															Expression* e = *iexp;
+															ResultValue r = e->Evaluate();
+															ParameterDef* p = *ipar;
 
+															if (r.type == p->parameter_type){
+																	//asignar
+															}
+															else
+																	cout << " ERROR en Expression ("<<line<<","<<column<<"): Tipos no son iguales."<<endl;
+															iexp++; ipar++;
+													}
+													ShowTemp();
+											}
+											else
+													cout << " ERROR en Expression ("<<line<<","<<column<<"): Cantidad de argumentos es incorrecto."<<endl;
+									}
+							// execute body
+					}
+					it++;
+			}
+
+			value = methods[method_name];
+
+	}
+	else{
+			cout << " ERROR en Expression ("<<line<<","<<column<<"): Metodo \'"<<method_name<<"\' no ha sido declarado. "<<endl;
+	}
 
 	return value;
 }
