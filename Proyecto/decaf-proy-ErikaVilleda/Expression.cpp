@@ -102,6 +102,108 @@ bool ExistVarTemp(string key){
 }
 
 /*
+ * GenerateCode()
+*/
+
+ResultValue BinaryExpression::GenerateCode(){
+  stringstream code;
+  ResultValue r;
+  ResultValue expr1_r = expr1->GenerateCode();
+  ResultValue expr2_r = expr2->GenerateCode();
+
+  if (expr1_r.type == expr2_r.type) {
+      r.type = expr1_r.type;
+
+      switch (oper){
+          case OpAdd:
+                if (expr1_r.isConstant && expr2_r.isConstant){
+                    r.value.int_value = expr1->Evaluate().value.int_value + expr2->Evaluate().value.int_value;
+                    r.code = "";
+                    r.isConstant = true;
+                }
+                else if (expr1_r.isConstant){
+                    r.place = newTemp();
+                    code << expr2_r.code << endl <<
+                        "	addi " << r.place << ", " << expr2_r.place << ", " << expr1_r.value.int_value << endl;
+                    releaseTemp(expr2_r.place);
+                    r.code = code.str();
+                    r.value.int_value = 0;
+                    r.isConstant = false;
+                }
+                else if (expr2_r.isConstant) {
+                      r.place = newTemp();
+                      code << expr1_r.code <<
+                            "	addi " << r.place << ", " << expr1_r.place << ", " << expr2_r.value.int_value << endl;
+                      releaseTemp(expr1_r.place);
+                      r.code = code.str();
+                      r.value.int_value = 0;
+                      r.isConstant = false;
+                }
+                else {
+                    r.place = newTemp();
+                    code << expr1_r.code << endl <<
+                        expr2_r.code << endl <<
+                        "	add " << r.place << ", " << expr1_r.place << ", " << expr2_r.place << endl;
+                    r.code = code.str();
+                    r.value.int_value = 0;
+                    r.isConstant = false;
+                    releaseTemp(expr1_r.place);
+                    releaseTemp(expr2_r.place);
+                }
+                break;
+        }
+      }
+  return r;
+}
+
+ResultValue UnaryExpression::GenerateCode(){
+  ResultValue r;
+  return r;
+}
+
+ResultValue LValueExpression::GenerateCode(){
+  ResultValue r;
+  stringstream code;
+  r.place = newTemp();
+
+  if (ExistVarGlobal(variable_name)){
+    r.type = vars[variable_name].type;
+    code << "	lw " << r.place << ", " << variable_name << endl;
+  }
+  else if (ExistVarTemp(variable_name)){
+            r.type = varsTemp[variable_name].type;
+            code << "	lw " << r.place << ", " << variable_name << endl;
+  }
+  else{
+      cout << " ERROR en Expression GC("<<line<<","<<column<<"): Variable \'"<<variable_name<<"\' no ha sido declarada. "<<endl;
+  }
+  r.isConstant = false;
+  r.code = code.str();
+
+  return r;
+}
+
+ResultValue MethodCallExpression::GenerateCode(){
+  ResultValue r;
+  return r;
+}
+
+ResultValue ConstantExpression::GenerateCode(){
+  ResultValue value;
+
+  value.type = constant_type;
+  value.value.int_value = constant_value.int_value;
+  value.value.bool_value = constant_value.bool_value;
+  value.value.string_value = constant_value.string_value;
+  value.isConstant = true;
+  value.code = "";
+  value.place = "";
+
+  return value;
+}
+
+
+/*
  * Evaluate()
  */
 ResultValue BinaryExpression::Evaluate()
@@ -244,6 +346,9 @@ ResultValue ConstantExpression::Evaluate()
 	value.value.int_value = constant_value.int_value;
 	value.value.bool_value = constant_value.bool_value;
 	value.value.string_value = constant_value.string_value;
+  value.isConstant = true;
+  value.code = "";
+  value.place = "";
 
 	return value;
 }

@@ -4,28 +4,33 @@ class Program
    int i,j,k;
    boolean b1;
    int a1[50];
+   int var1 = 23;
+   int var2;
+   int var3;
 
    void main()
    {
       int a, c;
       boolean s,t;
 
-      a = callout(max(r[(6+0999)*i]),b);
+      a = 30;//callout(max(r[(6+0999)*i]),b);
       if (a < 100 && a > 10)
       {
          s = true;
          t = false;
          print a;
       }
+      i = 100;
    }
 
    void max (int y, boolean g)
    {
-      boolean op;
-      print "Erika";
+       var2 = 5;
+       var1 = var2 + 2;
+       var3 = var1 + var2;
    }
    boolean variable;
-   int max(int op)
+   int max1(int op)
    {
       int tmp;
       int miMax;

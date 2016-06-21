@@ -94,10 +94,10 @@ class Expression
 		virtual ExpressionKind GetKind() = 0;
 		virtual ResultValue Evaluate() = 0;
 		virtual string ToString() = 0;
-		//virtual ResultValue getCode() = 0; TODO
+		virtual ResultValue GenerateCode() = 0;
 
 		int line, column;
-		string lugar;
+		string place;
 };
 
 typedef list<Expression *> ExpressionList;
@@ -119,6 +119,7 @@ class BinaryExpression: public Expression
 
 		virtual ResultValue Evaluate();
 		virtual string ToString();
+		virtual ResultValue GenerateCode();
 
 		Expression *expr1;
 		Expression *expr2;
@@ -147,6 +148,7 @@ class UnaryExpression: public Expression
 
 		virtual ResultValue Evaluate();
 		virtual string ToString();
+		virtual ResultValue GenerateCode();
 
 		Expression *expr;
 		ExpressionOperator oper;
@@ -174,6 +176,7 @@ class LValueExpression: public Expression
 
 		virtual ResultValue Evaluate();
 		virtual string ToString();
+		virtual ResultValue GenerateCode();
 
 		string variable_name;
 		Expression *array_index;
@@ -203,6 +206,7 @@ class MethodCallExpression: public Expression
 
 		virtual ResultValue Evaluate();
 		virtual string ToString();
+		virtual ResultValue GenerateCode();
 
 		string method_name;
 		ExpressionList *method_arguments;
@@ -239,6 +243,7 @@ class ConstantExpression: public Expression
 
 		virtual ResultValue Evaluate(); // DONE
 		virtual string ToString();
+		virtual ResultValue GenerateCode();
 
 		Type constant_type;
 		union

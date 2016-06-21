@@ -182,31 +182,34 @@ void BlockStatement::ExecuteStatement()
 string AssignmentStatement::GenerateCode(){
 	stringstream varCode;
 
-	ResultValue lvalue_r = lvalue->Evaluate();
-	ResultValue rvalue_r = expr->Evaluate();
+	ResultValue lvalue_r = lvalue->GenerateCode();
+	ResultValue rvalue_r = expr->GenerateCode();
 	LValueExpression* n = (LValueExpression*)lvalue;
 
 	if (!ExistVarGlobal(n->variable_name) && !ExistVarTemp(n->variable_name)){
 				cout << "("<<line<<","<<column<<"): Variable \'" << n->variable_name << "\' no ha sido declarada."<<endl;
 	}
 	else if (lvalue_r.type == rvalue_r.type){
-			if (ExistVarGlobal(n->variable_name)){
-					//vars[n->variable_name] = rvalue_r;
-					if (rvalue_r.isConstant){
-							varCode << "	li " << lvalue_r.place;
+					if (ExistVarGlobal(n->variable_name)){
+							if (rvalue_r.isConstant){
+									string p = newTemp();
+									varCode << expr->GenerateCode().code << endl;
+									varCode << "	li " << p << ", " << rvalue_r.value.int_value << endl; // VALIDAR los demas tipos (bool, string)
+									varCode << "	sw " << p << ", " << n->variable_name << endl;
+									releaseTemp(p);
+							}
+							else {
+									string p = newTemp();
+									varCode << rvalue_r.code;
+									varCode << "	sw " << rvalue_r.place << ", " << n->variable_name << endl;
+							}
 					}
-			}
-			if (ExistVarTemp(n->variable_name)){
-					//varsTemp[n->variable_name] = rvalue_r;
-
-			}
-	}
-	else
-			cout << " ERROR en Statement ("<<line<<","<<column<<"): Variable \'"<< n->variable_name << "\' No se puede convertir \'" << TypeToString(rvalue_r.type) << "\' a \'" << TypeToString(lvalue_r.type) << "\'"<<endl;
-
-
-
-
+					if (ExistVarTemp(n->variable_name)){
+							//varsTemp[n->variable_name] = rvalue_r;
+					}
+			 }
+			else
+					cout << " ERROR en Statement ("<<line<<","<<column<<"): Variable \'"<< n->variable_name << "\' No se puede convertir \'" << TypeToString(rvalue_r.type) << "\' a \'" << TypeToString(lvalue_r.type) << "\'"<<endl;
 	return varCode.str();
 }
 
@@ -283,7 +286,6 @@ string BlockStatement::GenerateCode(){
 					while (its!=statement_list->end()){
 							Statement* n = *its;
 							varCode << n->GenerateCode();
-							//n->ExecuteStatement(); 							//cout << n->GetKind()<<endl;
 							its++;
 					}
 			}
@@ -293,7 +295,7 @@ string BlockStatement::GenerateCode(){
 					VariableDefList::iterator it = variable_def_list->begin();
 					while (it!=variable_def_list->end()){
 						VariableDef* n = *it;
-						releaseTempS(varsTemp[n->name].place);
+						releaseTempS(varsTemp[n->name].place);	// Libero los registros S.
 						varsTemp.erase(n->name);
 						it++;
 					}

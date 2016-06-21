@@ -64,6 +64,7 @@ struct ResultValue
 	Type type;
 	bool isConstant;
 	string place;
+	string code;
 	union {
 		int int_value;
 		bool bool_value;

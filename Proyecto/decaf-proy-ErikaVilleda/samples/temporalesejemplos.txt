@@ -1,10 +1,11 @@
 class temporal{
   int var1 = 23;
+  int var2;
+  int var3;
 
   void main(){
-    int t0, t1;
-    t0 = var1;
-    t1 = 5;
-    var1 = t1;
+    var2 = 5;
+    var1 = var2 + 2;
+    var3 = var1 + var2;
   }
 }

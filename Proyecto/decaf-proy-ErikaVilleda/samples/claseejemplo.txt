@@ -1,10 +1,10 @@
 // Programa de ejemplo en lenguaje decaf
 class Program
 {
+    int temp;
    void swap(int xp, int yp)
    {
-        int temp;
-        temp = xp;
+        temp = 1;
         xp = yp;
         yp = temp;
    }
