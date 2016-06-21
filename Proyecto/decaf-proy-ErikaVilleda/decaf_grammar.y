@@ -104,6 +104,8 @@
 %type field_and_methods_list 		{FieldMethodDefList*}
 %type field_and_methods			 		{FieldMethodDef*}
 
+%type id_void	{char*}
+
 %parse_accept {
   printf("Parsing completed!\n\n\n");
 }
@@ -157,13 +159,16 @@ method_decl(A)::= type(B) ID(C) T_OPAR opt_parameter_decl_list(E) T_CPAR block(G
 																																			A->method_body =  G;
 																																		}
 
-method_decl(A)::= K_VOID ID(C) T_OPAR opt_parameter_decl_list(E) T_CPAR block(G).
+method_decl(A)::= K_VOID id_void(C) T_OPAR opt_parameter_decl_list(E) T_CPAR block(G).
 																																		{
-																																			A = new MethodDef(C->strValue);
+																																			A = new MethodDef(C);
 																																			A->method_return_type = Void;
 																																			A->method_parameters = E;
 																																			A->method_body =  G;
 																																		}
+
+id_void(A)::= K_MAIN. { A = (char*)"main"; }
+id_void(A)::= ID (B). { A = B->strValue; }
 
 
 opt_parameter_decl_list(A)::= parameter_decl_list(B). 	{ A = B; }

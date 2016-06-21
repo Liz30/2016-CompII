@@ -19,6 +19,7 @@
 
 using namespace std;
 
+
 enum ExpressionKind
 {
 	ekBinary,
@@ -74,6 +75,12 @@ bool ExistVarGlobal(string key);
 bool ExistVarTemp(string key);
 void ShowTemp();
 bool ExistMethod(string key);
+string newTempsS();
+string newTemp();
+string newParam();
+void releaseParam(string key);
+void releaseTempS(string key);
+void releaseTemp(string key);
 
 class Expression
 {
@@ -90,6 +97,7 @@ class Expression
 		//virtual ResultValue getCode() = 0; TODO
 
 		int line, column;
+		string lugar;
 };
 
 typedef list<Expression *> ExpressionList;

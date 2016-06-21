@@ -29,7 +29,7 @@ public:
   virtual MethodKind getKind() = 0;
   virtual string ToString() = 0;
   virtual void Execute() = 0;
-  //virtual ResultValue getCode() = 0;
+  virtual string GenerateCode() = 0;
 
   string name;
 };

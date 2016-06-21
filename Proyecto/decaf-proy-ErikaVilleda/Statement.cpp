@@ -10,6 +10,9 @@
 #include "Statement.h"
 #include "Util.h"
 
+extern const char* regtemp[];
+extern const char* regtempsS[];
+extern const char* regParam[];
 
 /*
  * ExecuteStatement
@@ -169,6 +172,134 @@ void BlockStatement::ExecuteStatement()
 					it++;
 				}
 		}
+}
+
+
+/*
+ * GenerateCode
+ */
+
+string AssignmentStatement::GenerateCode(){
+	stringstream varCode;
+
+	ResultValue lvalue_r = lvalue->Evaluate();
+	ResultValue rvalue_r = expr->Evaluate();
+	LValueExpression* n = (LValueExpression*)lvalue;
+
+	if (!ExistVarGlobal(n->variable_name) && !ExistVarTemp(n->variable_name)){
+				cout << "("<<line<<","<<column<<"): Variable \'" << n->variable_name << "\' no ha sido declarada."<<endl;
+	}
+	else if (lvalue_r.type == rvalue_r.type){
+			if (ExistVarGlobal(n->variable_name)){
+					//vars[n->variable_name] = rvalue_r;
+					if (rvalue_r.isConstant){
+							varCode << "	li " << lvalue_r.place;
+					}
+			}
+			if (ExistVarTemp(n->variable_name)){
+					//varsTemp[n->variable_name] = rvalue_r;
+
+			}
+	}
+	else
+			cout << " ERROR en Statement ("<<line<<","<<column<<"): Variable \'"<< n->variable_name << "\' No se puede convertir \'" << TypeToString(rvalue_r.type) << "\' a \'" << TypeToString(lvalue_r.type) << "\'"<<endl;
+
+
+
+
+	return varCode.str();
+}
+
+string MethodCallStatement::GenerateCode(){
+	stringstream varCode;
+	return varCode.str();
+}
+
+string IfStatement::GenerateCode(){
+	stringstream varCode;
+	return varCode.str();
+}
+
+string WhileStatement::GenerateCode(){
+	stringstream varCode;
+	return varCode.str();
+}
+
+string ForStatement::GenerateCode(){
+	stringstream varCode;
+	return varCode.str();
+}
+
+string ReturnStatement::GenerateCode(){
+	stringstream varCode;
+	return varCode.str();
+}
+
+string BreakStatement::GenerateCode(){
+	stringstream varCode;
+	return varCode.str();
+}
+
+string ContinueStatement::GenerateCode(){
+	stringstream varCode;
+	return varCode.str();
+}
+
+string BlockStatement::GenerateCode(){
+	stringstream varCode;
+
+			if (variable_def_list!=0){
+					VariableDefList::iterator itv = variable_def_list->begin();
+					varCode << "	addi $sp, $sp, -" << (variable_def_list->size()+1)*4 << endl;
+					int i = 0;
+
+					while (itv!=variable_def_list->end()){
+						VariableDef* n = *itv;
+						ResultValue r;
+						r.place = newTempsS(); // revisar que no se pase del limite de registros
+						varCode << "	sw " << r.place << ", " << i << "($sp)" << endl;
+						i+=4;
+
+						if (!ExistVarTemp(n->name) && !ExistVarGlobal(n->name)){
+								r.type = n->variable_type;
+								if (n->initial_value!=0){
+										r = n->initial_value->Evaluate();
+										if (r.type != n->variable_type){
+												cout << " ERROR en Statement (" << n->line << "," << n->column << "): No se puede convertir " << TypeToString(n->variable_type) << " a " << TypeToString(r.type) << endl;
+												r.type = n->variable_type;
+										}
+								}
+								varsTemp[n->name] = r;								//cout << "  BlockST: " << n->name << "  Tipo: " << r.type << endl;
+						}
+						else
+								cout << " ERROR en Statement (" << n->line << "," << n->column << "): Variable \'" << n->name << "\' ya ha sido declarada." << endl;
+						itv++;
+					}
+					varCode << "	sw $ra, " << i << "($sp)" << endl;
+			}
+
+			if (statement_list!=0){
+					StatementList::iterator its = statement_list->begin();
+					while (its!=statement_list->end()){
+							Statement* n = *its;
+							varCode << n->GenerateCode();
+							//n->ExecuteStatement(); 							//cout << n->GetKind()<<endl;
+							its++;
+					}
+			}
+
+			// Release Temp //
+			if (variable_def_list!=0){
+					VariableDefList::iterator it = variable_def_list->begin();
+					while (it!=variable_def_list->end()){
+						VariableDef* n = *it;
+						releaseTempS(varsTemp[n->name].place);
+						varsTemp.erase(n->name);
+						it++;
+					}
+			}
+
+			return varCode.str();
 }
 
 /*

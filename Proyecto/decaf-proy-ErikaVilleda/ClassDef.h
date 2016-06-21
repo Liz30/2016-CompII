@@ -18,6 +18,8 @@
 
 using namespace std;
 
+extern bool mainExist;
+
 class ClassDef
 {
 	public:
@@ -101,11 +103,36 @@ class ClassDef
 			return out.str();
 		}
 
+		void FillVarsMethods(){
+			FieldMethodDefList::iterator it = field_method_def_list->begin();
+			while(it!=field_method_def_list->end()){
+					FieldMethodDef* n = *it;
+					if (n->getKind()==METHOD){
+						MethodDef* nuevo = (MethodDef*)n;
+						if (nuevo->name.compare("main")==0){
+								if (mainExist){
+										cout << " ERROR en ClassDef: Metodo \'main\' ya existe." << endl;
+								}
+								else{
+									mainExist = true;
+									AddMethod(nuevo);
+								}
+						}
+						else
+								AddMethod(nuevo);
+					}
+					if (n->getKind()==FIELD){
+						VariableDef* nuevo = (VariableDef*)n;
+						AddFieldDef(nuevo);
+					}
+					it++;
+			}
+		}
+
 		void Execute(){
-				FieldMethodDefList::iterator it = field_method_def_list->begin();
+				/*FieldMethodDefList::iterator it = field_method_def_list->begin();
 				while(it!=field_method_def_list->end()){
 						FieldMethodDef* n = *it;
-						//cout << " Tipo: " << n->getKind() << endl;
 						if (n->getKind()==METHOD){
 							MethodDef* nuevo = (MethodDef*)n;
 							AddMethod(nuevo);
@@ -116,12 +143,54 @@ class ClassDef
 							AddFieldDef(nuevo);
 							nuevo->Execute();
 						}
-						//n->Execute();
 						it++;
 				}
-				cout <<endl<< " Variables Globales: "<<field_def_list->size()<<endl;
-				cout <<" Metodos: " << method_def_list->size()<<endl;
-				cout <<" Todos: "<<field_method_def_list->size();
+				//cout <<endl<< " Variables Globales: "<<field_def_list->size()<<endl;
+				//cout <<" Metodos: " << method_def_list->size()<<endl;
+				//cout <<" Todos: "<<field_method_def_list->size();*/
+				FillVarsMethods();
+				if (field_def_list!=0){
+						VariableDefList::iterator it = field_def_list->begin();
+						while (it!=field_def_list->end()){
+							VariableDef* n = *it;
+							n->Execute();
+							it++;
+						}
+				}
+				if (method_def_list!=0){
+						MethodDefList::iterator itm = method_def_list->begin();
+					 	while (itm!=method_def_list->end()){
+						 	MethodDef* n = *itm;
+						 	n->Execute();
+						 	itm++;
+				 		}
+				}
+		}
+
+		void generateCode(){
+			 FillVarsMethods();
+
+			 if (field_def_list!=0){
+				 	 mipsCode << "	.data"<< endl;
+					 VariableDefList::iterator it = field_def_list->begin();
+					 while (it!=field_def_list->end()){
+						 VariableDef* n = *it;
+						 mipsCode << n->GenerateCode();
+						 it++;
+					 }
+		 	 }
+
+			 if (method_def_list!=0){
+				 	 mipsCode << endl << "	.text" << endl;
+					 MethodDefList::iterator itm = method_def_list->begin();
+					 while (itm!=method_def_list->end()){
+						 MethodDef* n = *itm;
+						 mipsCode<<n->GenerateCode();
+						 itm++;
+					 }
+		   }
+
+			 cout << mipsCode.str() << endl;
 		}
 
 		void AddFieldDef(VariableDef *field_def){

@@ -17,6 +17,57 @@ extern map<string, ResultValue> vars;
 extern map<string, ResultValue> varsTemp;
 extern map<string, ResultValue> methods;
 
+extern map<string, int>  tempAvailable;
+extern map<string, int>  tempSAvailable;
+extern map<string, int>  paramAvailable;
+
+extern const char* regtemp[];
+extern const char* regtempsS[];
+extern const char* regParam[];
+extern bool mainExist;
+
+string newTemp(){
+  for (int i = 0; i < 10; i++){
+    if (tempAvailable.find(regtemp[i]) == tempAvailable.end()) {
+        tempAvailable[regtemp[i]] = 0;
+        return string(regtemp[i]);
+    }
+  }
+  return string ("");
+}
+
+string newTempsS(){
+  for (int i = 0; i < 10; i++){
+    if (tempSAvailable.find(regtempsS[i]) == tempSAvailable.end()) {
+        tempSAvailable[regtempsS[i]] = 0;
+        return string(regtempsS[i]);
+    }
+  }
+  return string ("");
+}
+
+string newParam(){
+  for (int i = 0; i < 4; i++){
+      if (paramAvailable.find(regParam[i]) == paramAvailable.end()) {
+          paramAvailable[regParam[i]] = 0;
+          return string(regParam[i]);
+      }
+  }
+  return string ("");
+}
+
+void releaseTemp(string key){
+    tempAvailable.erase(key);
+}
+
+void releaseTempS(string key){
+    tempSAvailable.erase(key);
+}
+
+void releaseParam(string key){
+    paramAvailable.erase(key);
+}
+
 bool ExistMethod(string key){
 		map<string, ResultValue>::iterator it = methods.find(key);
 		if ( it != methods.end())

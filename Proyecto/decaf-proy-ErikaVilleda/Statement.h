@@ -46,6 +46,7 @@ class Statement
 		virtual StatementKind GetKind() = 0;
 		virtual void ExecuteStatement() = 0;
 		virtual string ToString() = 0;
+		virtual string GenerateCode() = 0;
 
 		int line, column;
 };
@@ -75,6 +76,7 @@ class AssignmentStatement: public Statement
 
 		virtual void ExecuteStatement();
 		virtual string ToString();
+		virtual string GenerateCode();
 
 		Expression *lvalue;
 		Expression *expr;
@@ -104,6 +106,7 @@ class MethodCallStatement: public Statement
 
 		virtual void ExecuteStatement();
 		virtual string ToString();
+		virtual string GenerateCode();
 
 		string name;
 		ExpressionList *arguments;
@@ -138,6 +141,7 @@ class IfStatement: public Statement
 
 		virtual void ExecuteStatement();
 		virtual string ToString();
+		virtual string GenerateCode();
 
 		Expression *condition;
 		Statement *true_part;
@@ -168,6 +172,7 @@ class WhileStatement: public Statement
 
 		virtual void ExecuteStatement();
 		virtual string ToString();
+		virtual string GenerateCode();
 
 		Expression *condition;
 		Statement *loop_body;
@@ -203,6 +208,7 @@ class ForStatement: public Statement
 
 		virtual void ExecuteStatement();
 		virtual string ToString();
+		virtual string GenerateCode();
 
 		Statement *assignment_list1;
 		Statement *assignment_list2;
@@ -231,6 +237,7 @@ class ReturnStatement: public Statement
 
 		virtual void ExecuteStatement();
 		virtual string ToString();
+		virtual string GenerateCode();
 
 		Expression *expr;
 };
@@ -249,6 +256,7 @@ class BreakStatement: public Statement
 
 		virtual void ExecuteStatement();
 		virtual string ToString();
+		virtual string GenerateCode();
 };
 
 class ContinueStatement: public Statement
@@ -265,6 +273,7 @@ class ContinueStatement: public Statement
 
 		virtual void ExecuteStatement();
 		virtual string ToString();
+		virtual string GenerateCode();
 };
 
 typedef list<Statement *> StatementList;
@@ -303,6 +312,7 @@ class BlockStatement: public Statement
 
 		virtual void ExecuteStatement();
 		virtual string ToString();
+		virtual string GenerateCode();
 
 		void AddVariableDef(VariableDef *variable_def)
 		{

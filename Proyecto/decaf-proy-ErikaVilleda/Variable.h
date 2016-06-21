@@ -16,9 +16,11 @@
 #include "Value.h"
 #include "FieldMethodDef.h"
 
+
 using namespace std;
 
 extern map<string, ResultValue> vars;
+extern stringstream mipsCode;
 
 class VariableDef : public FieldMethodDef
 {
@@ -64,6 +66,37 @@ public:
 			}
 			else
 					cout << " ERROR en Variable: " << line << "," << column << ": " << name << " ya ha sido declarada. "<< endl;
+	}
+
+	virtual string GenerateCode(){
+		stringstream varCode;
+		string t = TypeToMips(variable_type);
+		ResultValue r;
+		r.type = variable_type;
+
+		// VALIDAR: name no exista.
+		varCode << name << ":	 " << t;
+
+		if (initial_value!=0){
+				r = initial_value->Evaluate();
+				if (r.type != variable_type){
+						cout << " ERROR en Variable: " << line << "," << column << ": No se puede convertir " << TypeToString(variable_type) << " a " << TypeToString(r.type) << endl;
+						r.type = variable_type;
+				}
+				else{
+						switch (r.type){
+							case Int: varCode << "	" << r.value.int_value; break;
+							case Boolean: varCode << "	" << r.value.bool_value; break;
+							case String: varCode << "	" << r.value.string_value; break;
+						}
+				}
+				varCode << endl;
+		}
+		else
+			varCode << endl;
+
+		vars[name] = r;
+		return varCode.str();
 	}
 
 	Type variable_type;

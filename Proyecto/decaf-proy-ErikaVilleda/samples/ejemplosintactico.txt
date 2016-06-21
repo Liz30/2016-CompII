@@ -19,7 +19,7 @@ class Program
       }
    }
 
-   boolean main (int y, boolean g)
+   void max (int y, boolean g)
    {
       boolean op;
       print "Erika";

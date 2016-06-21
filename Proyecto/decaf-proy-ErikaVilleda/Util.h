@@ -14,6 +14,7 @@
 
 using namespace std;
 
+
 /* Added */
 struct YYLTYPE {
     int first_line;

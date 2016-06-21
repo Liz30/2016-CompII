@@ -40,6 +40,20 @@ inline string TypeToString(Type type)
 	return "None";
 }
 
+inline string TypeToMips(Type type)
+{
+	switch (type)
+	{
+		case Int: return ".word";
+		case Char: return ".byte";
+		case Boolean: return ".byte";
+		case String: return ".asciiz";
+		//case Void: return "void";
+	}
+
+	return "None";
+}
+
 /*
  * Esta estructura representa el resultado de la evaluación de una Expresion.
  * El caso de string_value será utilizado para la proposicion print, la cual
@@ -48,6 +62,8 @@ inline string TypeToString(Type type)
 struct ResultValue
 {
 	Type type;
+	bool isConstant;
+	string place;
 	union {
 		int int_value;
 		bool bool_value;

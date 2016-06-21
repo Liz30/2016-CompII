@@ -53,6 +53,7 @@ LETTER   [a-zA-Z]
 "int"		  { BeginToken(yytext, yylloc); RETURN_TOKEN(K_INT); }
 "void"		{ BeginToken(yytext, yylloc); RETURN_TOKEN(K_VOID); }
 "boolean"	{ BeginToken(yytext, yylloc); RETURN_TOKEN(K_BOOLEAN); }
+"main"    { BeginToken(yytext, yylloc); RETURN_TOKEN(K_MAIN); }
 "||"		{ BeginToken(yytext, yylloc); p_info = allocTokenInfo(BOOL_OP_AND, strdup(yytext)); p_info->oper = OpOr; return BOOL_OP_OR; }
 "&&"		{ BeginToken(yytext, yylloc); p_info = allocTokenInfo(BOOL_OP_AND, strdup(yytext)); p_info->oper = OpAnd; return BOOL_OP_AND; }
 ">>"		{ BeginToken(yytext, yylloc); p_info = allocTokenInfo(BIT_SHIFT_OP, strdup(yytext)); p_info->oper = OpRShift; return BIT_SHIFT_OP; }
@@ -117,6 +118,7 @@ string getTokenString(int token, TokenInfo *info)
     case K_CLASS: tokenName = "K_CLASS"; break;
     case K_INT: tokenName = "K_INT"; break;
     case K_VOID: tokenName = "K_VOID"; break;
+    case K_MAIN: tokenName = "K_MAIN"; break;
 
     case T_SEMICOLON:
     case T_COMMA:
