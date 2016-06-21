@@ -185,7 +185,7 @@ string AssignmentStatement::GenerateCode(){
 	ResultValue lvalue_r = lvalue->GenerateCode();
 	ResultValue rvalue_r = expr->GenerateCode();
 	LValueExpression* n = (LValueExpression*)lvalue;
-
+	cout << " 1: " << lvalue_r.code << "        2: " << rvalue_r.code << endl;
 	if (!ExistVarGlobal(n->variable_name) && !ExistVarTemp(n->variable_name)){
 				cout << "("<<line<<","<<column<<"): Variable \'" << n->variable_name << "\' no ha sido declarada."<<endl;
 	}
@@ -193,7 +193,7 @@ string AssignmentStatement::GenerateCode(){
 					if (ExistVarGlobal(n->variable_name)){
 							if (rvalue_r.isConstant){
 									string p = newTemp();
-									varCode << expr->GenerateCode().code << endl;
+									varCode << rvalue_r.code;
 									varCode << "	li " << p << ", " << rvalue_r.value.int_value << endl; // VALIDAR los demas tipos (bool, string)
 									varCode << "	sw " << p << ", " << n->variable_name << endl;
 									releaseTemp(p);
@@ -202,10 +202,14 @@ string AssignmentStatement::GenerateCode(){
 									string p = newTemp();
 									varCode << rvalue_r.code;
 									varCode << "	sw " << rvalue_r.place << ", " << n->variable_name << endl;
+									releaseTemp(p);
 							}
 					}
 					if (ExistVarTemp(n->variable_name)){
-							//varsTemp[n->variable_name] = rvalue_r;
+							if (rvalue_r.isConstant)
+									varCode << "	li " << varsTemp[n->variable_name].place << ", " << rvalue_r.value.int_value << endl;
+							else
+									varCode << "	move " << varsTemp[n->variable_name].place << ", " << rvalue_r.place << endl;
 					}
 			 }
 			else
@@ -215,11 +219,27 @@ string AssignmentStatement::GenerateCode(){
 
 string MethodCallStatement::GenerateCode(){
 	stringstream varCode;
+	/*
+		READ:
+		li	$v0, 5			# load appropriate system call code into register $v0;
+										# code for reading integer is 5
+		syscall					# call operating system to perform operation
+		sw	$v0, int_value # int_value declared in data section or temp var
+
+	*/
 	return varCode.str();
 }
 
 string IfStatement::GenerateCode(){
 	stringstream varCode;
+	/*ResultValue r = condition->GenerateCode();
+
+	varCode << r.code;
+	varCode << "	beq " << r.place << ", $zero, else";
+	varCode << true_part->GenerateCode();
+	varCode << "	j endif";
+	varCode << "else: " << endl << false_part->GenerateCode();
+	varCode << "endif:" << endl;*/
 	return varCode.str();
 }
 
@@ -293,12 +313,17 @@ string BlockStatement::GenerateCode(){
 			// Release Temp //
 			if (variable_def_list!=0){
 					VariableDefList::iterator it = variable_def_list->begin();
+					int i = 0;
 					while (it!=variable_def_list->end()){
 						VariableDef* n = *it;
+						varCode << "	lw " << varsTemp[n->name].place << ", " << i << "($sp)" << endl;
 						releaseTempS(varsTemp[n->name].place);	// Libero los registros S.
 						varsTemp.erase(n->name);
 						it++;
+						i+=4;
 					}
+					varCode << "	lw $ra, " << i << "($sp)" << endl;
+					varCode << "	addi $sp, $sp, " << i+4 << endl;
 			}
 
 			return varCode.str();

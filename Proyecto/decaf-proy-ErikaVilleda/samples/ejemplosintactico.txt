@@ -14,7 +14,7 @@ class Program
       boolean s,t;
 
       a = 30;//callout(max(r[(6+0999)*i]),b);
-      if (a < 100 && a > 10)
+      if (true)//a < 100 && a > 10)
       {
          s = true;
          t = false;
@@ -30,12 +30,12 @@ class Program
        var3 = var1 + var2;
    }
    boolean variable;
-   int max1(int op)
+   int max1(int op, boolean op2)
    {
       int tmp;
       int miMax;
       tmp = 0;
-
+      op2 = false;
       op = 30;
 
       miMax = 0;
