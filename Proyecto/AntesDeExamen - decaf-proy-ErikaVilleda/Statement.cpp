@@ -174,122 +174,47 @@ void BlockStatement::ExecuteStatement()
 		}
 }
 
-/*
- * ExecuteSemantic
- */
-
-bool AssignmentStatement::ExecuteSemantic(){
-		ResultValue lvalue_r = lvalue->Evaluate();
-		ResultValue rvalue_r = expr->Evaluate();
-		LValueExpression* n = (LValueExpression*)lvalue;
-
-		if (!ExistVarGlobal(n->variable_name) && !ExistVarTemp(n->variable_name)){
-					cout << " ERROR en AssignmentStatement ("<<line<<","<<column<<"): Variable \'" << n->variable_name << "\' no ha sido declarada."<<endl;
-					return false;
-		}
-		if (lvalue_r.type != rvalue_r.type){
-					cout << " ERROR en AssignmentStatement ("<<line<<","<<column<<"): Variable \'"<< n->variable_name << "\' No se puede convertir \'" << TypeToString(rvalue_r.type) << "\' a \'" << TypeToString(lvalue_r.type) << "\'"<<endl;
-					return false;
-		}
-	 	return true;
-}
-
-bool MethodCallStatement::ExecuteSemantic(){
- 	return true;
-}
-
-bool IfStatement::ExecuteSemantic(){
-	return true;
-}
-
-bool WhileStatement::ExecuteSemantic(){
-		return true;
-}
-
-bool ForStatement::ExecuteSemantic(){
-		return true;
-}
-
-bool ReturnStatement::ExecuteSemantic(){
-		return true;
-}
-
-bool BreakStatement::ExecuteSemantic(){
-		return true;
-}
-
-bool ContinueStatement::ExecuteSemantic(){
-		return true;
-}
-
-bool BlockStatement::ExecuteSemantic(){
-
-		if (variable_def_list!=0){
-				VariableDefList::iterator itv = variable_def_list->begin();
-				while (itv!=variable_def_list->end()){
-					VariableDef* n = *itv;
-					if (!n->ExecuteSemanticTemps())
-							return false;
-					itv++;
-				}
-		}
-
-		if (statement_list!=0){
-				StatementList::iterator its = statement_list->begin();
-				while (its!=statement_list->end()){
-						Statement* n = *its;
-						if(!n->ExecuteSemantic())
-								return false;
-						its++;
-				}
-		}
-
-		// Release Temp //
-		if (variable_def_list!=0){
-				VariableDefList::iterator it = variable_def_list->begin();
-				while (it!=variable_def_list->end()){
-					VariableDef* n = *it;
-					varsTemp.erase(n->name);
-					it++;
-				}
-		}
-		return true;
-}
 
 /*
  * GenerateCode
  */
 
 string AssignmentStatement::GenerateCode(){
-		stringstream varCode;
+	stringstream varCode;
 
-		ResultValue lvalue_r = lvalue->GenerateCode();
-		ResultValue rvalue_r = expr->GenerateCode();
-		LValueExpression* n = (LValueExpression*)lvalue;
-
-		if (ExistVarGlobal(n->variable_name)){
-				if (rvalue_r.isConstant){
-						string p = newTemp();
-						varCode << rvalue_r.code;
-						varCode << "	li " << p << ", " << rvalue_r.value.int_value << endl; // VALIDAR los demas tipos (bool, string)
-						varCode << "	sw " << p << ", " << n->variable_name << endl;
-						releaseTemp(p);
-				}
-				else {
-						string p = newTemp();
-						varCode << rvalue_r.code;
-						varCode << "	sw " << rvalue_r.place << ", " << n->variable_name << endl;
-						releaseTemp(p);
-				}
-		}
-		if (ExistVarTemp(n->variable_name)){
-				if (rvalue_r.isConstant)
-						varCode << "	li " << varsTemp[n->variable_name].place << ", " << rvalue_r.value.int_value << endl;
-				else
-						varCode << "	move " << varsTemp[n->variable_name].place << ", " << rvalue_r.place << endl;
-		}
-
-		return varCode.str();
+	ResultValue lvalue_r = lvalue->GenerateCode();
+	ResultValue rvalue_r = expr->GenerateCode();
+	LValueExpression* n = (LValueExpression*)lvalue;
+	cout << " 1: " << lvalue_r.code << "        2: " << rvalue_r.code << endl;
+	if (!ExistVarGlobal(n->variable_name) && !ExistVarTemp(n->variable_name)){
+				cout << "("<<line<<","<<column<<"): Variable \'" << n->variable_name << "\' no ha sido declarada."<<endl;
+	}
+	else if (lvalue_r.type == rvalue_r.type){
+					if (ExistVarGlobal(n->variable_name)){
+							if (rvalue_r.isConstant){
+									string p = newTemp();
+									varCode << rvalue_r.code;
+									varCode << "	li " << p << ", " << rvalue_r.value.int_value << endl; // VALIDAR los demas tipos (bool, string)
+									varCode << "	sw " << p << ", " << n->variable_name << endl;
+									releaseTemp(p);
+							}
+							else {
+									string p = newTemp();
+									varCode << rvalue_r.code;
+									varCode << "	sw " << rvalue_r.place << ", " << n->variable_name << endl;
+									releaseTemp(p);
+							}
+					}
+					if (ExistVarTemp(n->variable_name)){
+							if (rvalue_r.isConstant)
+									varCode << "	li " << varsTemp[n->variable_name].place << ", " << rvalue_r.value.int_value << endl;
+							else
+									varCode << "	move " << varsTemp[n->variable_name].place << ", " << rvalue_r.place << endl;
+					}
+			 }
+			else
+					cout << " ERROR en Statement ("<<line<<","<<column<<"): Variable \'"<< n->variable_name << "\' No se puede convertir \'" << TypeToString(rvalue_r.type) << "\' a \'" << TypeToString(lvalue_r.type) << "\'"<<endl;
+	return varCode.str();
 }
 
 string MethodCallStatement::GenerateCode(){
@@ -344,49 +269,64 @@ string ContinueStatement::GenerateCode(){
 }
 
 string BlockStatement::GenerateCode(){
-		stringstream varCode;
+	stringstream varCode;
 
-		if (variable_def_list!=0){
-				VariableDefList::iterator itv = variable_def_list->begin();
-				varCode << "	addi $sp, $sp, -" << (variable_def_list->size()+1)*4 << endl;
-				int i = 0;
+			if (variable_def_list!=0){
+					VariableDefList::iterator itv = variable_def_list->begin();
+					varCode << "	addi $sp, $sp, -" << (variable_def_list->size()+1)*4 << endl;
+					int i = 0;
 
-				while (itv!=variable_def_list->end()){
-					VariableDef* n = *itv;
-					varsTemp[n->name].place = newTempsS(); // VALIDAR que no se pase del limite de registros
-					varCode << "	sw " << varsTemp[n->name].place << ", " << i << "($sp)" << endl;
-					i+=4;
-					itv++;
-				}
-				varCode << "	sw $ra, " << i << "($sp)" << endl;
-		}
+					while (itv!=variable_def_list->end()){
+						VariableDef* n = *itv;
+						ResultValue r;
+						r.place = newTempsS(); // revisar que no se pase del limite de registros
+						varCode << "	sw " << r.place << ", " << i << "($sp)" << endl;
+						i+=4;
 
-		if (statement_list!=0){
-				StatementList::iterator its = statement_list->begin();
-				while (its!=statement_list->end()){
-						Statement* n = *its;
-						varCode << n->GenerateCode();
-						its++;
-				}
-		}
+						if (!ExistVarTemp(n->name) && !ExistVarGlobal(n->name)){
+								r.type = n->variable_type;
+								if (n->initial_value!=0){
+										r = n->initial_value->Evaluate();
+										if (r.type != n->variable_type){
+												cout << " ERROR en Statement (" << n->line << "," << n->column << "): No se puede convertir " << TypeToString(n->variable_type) << " a " << TypeToString(r.type) << endl;
+												r.type = n->variable_type;
+										}
+								}
+								varsTemp[n->name] = r;								//cout << "  BlockST: " << n->name << "  Tipo: " << r.type << endl;
+						}
+						else
+								cout << " ERROR en Statement (" << n->line << "," << n->column << "): Variable \'" << n->name << "\' ya ha sido declarada." << endl;
+						itv++;
+					}
+					varCode << "	sw $ra, " << i << "($sp)" << endl;
+			}
 
-		// Release Temp //
-		if (variable_def_list!=0){
-				VariableDefList::iterator it = variable_def_list->begin();
-				int i = 0;
-				while (it!=variable_def_list->end()){
-					VariableDef* n = *it;
-					varCode << "	lw " << varsTemp[n->name].place << ", " << i << "($sp)" << endl;
-					releaseTempS(varsTemp[n->name].place);	// Libero los registros S.
-					varsTemp.erase(n->name);
-					it++;
-					i+=4;
-				}
-				varCode << "	lw $ra, " << i << "($sp)" << endl;
-				varCode << "	addi $sp, $sp, " << i+4 << endl;
-		}
+			if (statement_list!=0){
+					StatementList::iterator its = statement_list->begin();
+					while (its!=statement_list->end()){
+							Statement* n = *its;
+							varCode << n->GenerateCode();
+							its++;
+					}
+			}
 
-		return varCode.str();
+			// Release Temp //
+			if (variable_def_list!=0){
+					VariableDefList::iterator it = variable_def_list->begin();
+					int i = 0;
+					while (it!=variable_def_list->end()){
+						VariableDef* n = *it;
+						varCode << "	lw " << varsTemp[n->name].place << ", " << i << "($sp)" << endl;
+						releaseTempS(varsTemp[n->name].place);	// Libero los registros S.
+						varsTemp.erase(n->name);
+						it++;
+						i+=4;
+					}
+					varCode << "	lw $ra, " << i << "($sp)" << endl;
+					varCode << "	addi $sp, $sp, " << i+4 << endl;
+			}
+
+			return varCode.str();
 }
 
 /*

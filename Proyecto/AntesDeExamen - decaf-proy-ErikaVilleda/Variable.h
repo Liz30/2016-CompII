@@ -20,7 +20,6 @@
 using namespace std;
 
 extern map<string, ResultValue> vars;
-extern map<string, ResultValue> varsTemp;
 extern stringstream mipsCode;
 
 class VariableDef : public FieldMethodDef
@@ -53,7 +52,7 @@ public:
 	virtual MethodKind getKind() { return FIELD; }
 
 	virtual void Execute() {
-	/*		if (!ExistVarGlobal(name)){
+			if (!ExistVarGlobal(name)){
 					ResultValue r;
 					r.type = variable_type;
 					if (initial_value!=0){
@@ -66,68 +65,37 @@ public:
 					vars[name] = r;
 			}
 			else
-					cout << " ERROR en Variable: " << line << "," << column << ": " << name << " ya ha sido declarada. "<< endl;*/
-				// En ExecuteSemantic registra la variable en vars[].
-	}
-
-	virtual bool ExecuteSemantic(){
-			if (!ExistVarGlobal(name)){
-					ResultValue r;
-					r.type = variable_type;
-					if (initial_value!=0){
-							r = initial_value->Evaluate();
-							if (r.type != variable_type){
-									cout << " ERROR en Variable (" << line << "," << column << "): No se puede convertir " << TypeToString(variable_type) << " a " << TypeToString(r.type) << endl;
-									return false;
-							}
-					}
-					vars[name] = r;
-			}
-			else{
-					cout << " ERROR en Variable (" << line << "," << column << "): " << name << " ya ha sido declarada. "<< endl;
-					return false;
-			}
-			return true;
-	}
-
-	bool ExecuteSemanticTemps(){
-		if (!ExistVarTemp(name) && !ExistVarGlobal(name)){
-				ResultValue r;
-				r.type = variable_type;
-				if (initial_value!=0){
-						r = initial_value->Evaluate();
-						if (r.type != variable_type){
-								cout << " ERROR en Variable (" << line << "," << column << "): No se puede convertir " << TypeToString(variable_type) << " a " << TypeToString(r.type) << endl;
-								return false;
-						}
-				}
-				varsTemp[name] = r;
-		}
-		else{
-				cout << " ERROR en Variable (" << line << "," << column << "): " << name << " ya ha sido declarada. "<< endl;
-				return false;
-		}
-		return true;
+					cout << " ERROR en Variable: " << line << "," << column << ": " << name << " ya ha sido declarada. "<< endl;
 	}
 
 	virtual string GenerateCode(){
 		stringstream varCode;
 		string t = TypeToMips(variable_type);
-		ResultValue r = vars[name];
+		ResultValue r;
+		r.type = variable_type;
 
+		// VALIDAR: name no exista.
 		varCode << name << ":	 " << t;
 
 		if (initial_value!=0){
-				switch (r.type){
-					case Int: varCode << "	" << r.value.int_value; break;
-					case Boolean: varCode << "	" << r.value.bool_value; break;
-					case String: varCode << "	" << r.value.string_value; break;
+				r = initial_value->Evaluate();
+				if (r.type != variable_type){
+						cout << " ERROR en Variable: " << line << "," << column << ": No se puede convertir " << TypeToString(variable_type) << " a " << TypeToString(r.type) << endl;
+						r.type = variable_type;
+				}
+				else{
+						switch (r.type){
+							case Int: varCode << "	" << r.value.int_value; break;
+							case Boolean: varCode << "	" << r.value.bool_value; break;
+							case String: varCode << "	" << r.value.string_value; break;
+						}
 				}
 				varCode << endl;
 		}
 		else
 			varCode << endl;
 
+		vars[name] = r;
 		return varCode.str();
 	}
 

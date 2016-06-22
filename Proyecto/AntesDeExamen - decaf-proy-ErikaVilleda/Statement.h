@@ -47,7 +47,6 @@ class Statement
 		virtual void ExecuteStatement() = 0;
 		virtual string ToString() = 0;
 		virtual string GenerateCode() = 0;
-		virtual bool ExecuteSemantic() = 0;
 
 		int line, column;
 };
@@ -78,7 +77,6 @@ class AssignmentStatement: public Statement
 		virtual void ExecuteStatement();
 		virtual string ToString();
 		virtual string GenerateCode();
-		virtual bool ExecuteSemantic();
 
 		Expression *lvalue;
 		Expression *expr;
@@ -109,7 +107,6 @@ class MethodCallStatement: public Statement
 		virtual void ExecuteStatement();
 		virtual string ToString();
 		virtual string GenerateCode();
-		virtual bool ExecuteSemantic();
 
 		string name;
 		ExpressionList *arguments;
@@ -145,7 +142,6 @@ class IfStatement: public Statement
 		virtual void ExecuteStatement();
 		virtual string ToString();
 		virtual string GenerateCode();
-		virtual bool ExecuteSemantic();
 
 		Expression *condition;
 		Statement *true_part;
@@ -177,7 +173,6 @@ class WhileStatement: public Statement
 		virtual void ExecuteStatement();
 		virtual string ToString();
 		virtual string GenerateCode();
-		virtual bool ExecuteSemantic();
 
 		Expression *condition;
 		Statement *loop_body;
@@ -214,7 +209,6 @@ class ForStatement: public Statement
 		virtual void ExecuteStatement();
 		virtual string ToString();
 		virtual string GenerateCode();
-		virtual bool ExecuteSemantic();
 
 		Statement *assignment_list1;
 		Statement *assignment_list2;
@@ -244,7 +238,6 @@ class ReturnStatement: public Statement
 		virtual void ExecuteStatement();
 		virtual string ToString();
 		virtual string GenerateCode();
-		virtual bool ExecuteSemantic();
 
 		Expression *expr;
 };
@@ -258,13 +251,12 @@ class BreakStatement: public Statement
 
 		virtual StatementKind GetKind()
 		{
-			return skBreak;
+			return skAssignment;
 		}
 
 		virtual void ExecuteStatement();
 		virtual string ToString();
 		virtual string GenerateCode();
-		virtual bool ExecuteSemantic();
 };
 
 class ContinueStatement: public Statement
@@ -282,7 +274,6 @@ class ContinueStatement: public Statement
 		virtual void ExecuteStatement();
 		virtual string ToString();
 		virtual string GenerateCode();
-		virtual bool ExecuteSemantic();
 };
 
 typedef list<Statement *> StatementList;
@@ -322,7 +313,6 @@ class BlockStatement: public Statement
 		virtual void ExecuteStatement();
 		virtual string ToString();
 		virtual string GenerateCode();
-		virtual bool ExecuteSemantic();
 
 		void AddVariableDef(VariableDef *variable_def)
 		{

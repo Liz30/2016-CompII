@@ -1,6 +1,5 @@
 class Factorial
 {
-	
 	void main()
 	{
 		int x;

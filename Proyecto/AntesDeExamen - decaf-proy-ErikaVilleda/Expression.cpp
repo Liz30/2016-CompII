@@ -185,8 +185,6 @@ ResultValue LValueExpression::GenerateCode(){
 
 ResultValue MethodCallExpression::GenerateCode(){
   ResultValue r;
-  //r = methods[method_name];
-  //cout << r.type <<endl;
   return r;
 }
 

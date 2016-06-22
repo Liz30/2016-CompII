@@ -19,7 +19,6 @@
 using namespace std;
 
 extern bool mainExist;
-extern bool globalError;
 
 class ClassDef
 {
@@ -105,42 +104,50 @@ class ClassDef
 		}
 
 		void FillVarsMethods(){
-				FieldMethodDefList::iterator it = field_method_def_list->begin();
+			FieldMethodDefList::iterator it = field_method_def_list->begin();
+			while(it!=field_method_def_list->end()){
+					FieldMethodDef* n = *it;
+					if (n->getKind()==METHOD){
+						MethodDef* nuevo = (MethodDef*)n;
+						if (nuevo->name.compare("main")==0){
+								if (mainExist){
+										cout << " ERROR en ClassDef: Metodo \'main\' ya existe." << endl;
+								}
+								else{
+									mainExist = true;
+									AddMethod(nuevo);
+								}
+						}
+						else
+								AddMethod(nuevo);
+					}
+					if (n->getKind()==FIELD){
+						VariableDef* nuevo = (VariableDef*)n;
+						AddFieldDef(nuevo);
+					}
+					it++;
+			}
+		}
+
+		void Execute(){
+				/*FieldMethodDefList::iterator it = field_method_def_list->begin();
 				while(it!=field_method_def_list->end()){
 						FieldMethodDef* n = *it;
 						if (n->getKind()==METHOD){
 							MethodDef* nuevo = (MethodDef*)n;
-							if (nuevo->name.compare("main")==0){
-									if (mainExist){
-											cout << " ERROR en ClassDef: Metodo \'main\' ya existe." << endl;
-											globalError = true;
-									}
-									else{
-										mainExist = true;
-										AddMethod(nuevo);
-									}
-							}
-							else
-									AddMethod(nuevo);
-							if (!ExistMethod(nuevo->name)){
-									ResultValue r;
-									r.type = nuevo->method_return_type;
-									methods[nuevo->name] = r;
-							}
-							else{
-									cout << " ERROR en ClassDef: Metodo \'" << nuevo->name << "\' ya existe." << endl;
-									globalError = true;
-							}
+							AddMethod(nuevo);
+							nuevo->Execute();
 						}
 						if (n->getKind()==FIELD){
 							VariableDef* nuevo = (VariableDef*)n;
 							AddFieldDef(nuevo);
+							nuevo->Execute();
 						}
 						it++;
 				}
-		}
-
-		void Execute(){
+				//cout <<endl<< " Variables Globales: "<<field_def_list->size()<<endl;
+				//cout <<" Metodos: " << method_def_list->size()<<endl;
+				//cout <<" Todos: "<<field_method_def_list->size();*/
 				FillVarsMethods();
 				if (field_def_list!=0){
 						VariableDefList::iterator it = field_def_list->begin();
@@ -161,56 +168,29 @@ class ClassDef
 		}
 
 		void generateCode(){
+			 FillVarsMethods();
 
-			 if (ExecuteSemantic()){
-					 if (field_def_list!=0){
-						 	 mipsCode << "	.data"<< endl;
-							 VariableDefList::iterator it = field_def_list->begin();
-							 while (it!=field_def_list->end()){
-								 VariableDef* n = *it;
-								 mipsCode << n->GenerateCode();
-								 it++;
-							 }
-				 	 }
-
-					 if (method_def_list!=0){
-						 	 mipsCode << endl << "	.text" << endl;
-							 MethodDefList::iterator itm = method_def_list->begin();
-							 while (itm!=method_def_list->end()){
-								 MethodDef* n = *itm;
-								 mipsCode << n->GenerateCode();
-								 itm++;
-							 }
-				   }
-					 cout << mipsCode.str() << endl;
+			 if (field_def_list!=0){
+				 	 mipsCode << "	.data"<< endl;
+					 VariableDefList::iterator it = field_def_list->begin();
+					 while (it!=field_def_list->end()){
+						 VariableDef* n = *it;
+						 mipsCode << n->GenerateCode();
+						 it++;
+					 }
 		 	 }
-			 else
-			 		cout << " Errores encontrados. Codigo no generado." << endl;
-		}
 
-		bool ExecuteSemantic(){
-			FillVarsMethods();
-			if (field_def_list!=0){
-					VariableDefList::iterator it = field_def_list->begin();
-					while (it!=field_def_list->end()){
-						VariableDef* n = *it;
-						if (!n->ExecuteSemantic())
-								return false;
-						it++;
-					}
-			}
+			 if (method_def_list!=0){
+				 	 mipsCode << endl << "	.text" << endl;
+					 MethodDefList::iterator itm = method_def_list->begin();
+					 while (itm!=method_def_list->end()){
+						 MethodDef* n = *itm;
+						 mipsCode<<n->GenerateCode();
+						 itm++;
+					 }
+		   }
 
-			if (method_def_list!=0){
-					MethodDefList::iterator itm = method_def_list->begin();
-					while (itm!=method_def_list->end()){
-						MethodDef* n = *itm;
-						if (!n->ExecuteSemantic())
-								return false;
-						itm++;
-					}
-			}
-
-			return true;
+			 cout << mipsCode.str() << endl;
 		}
 
 		void AddFieldDef(VariableDef *field_def){

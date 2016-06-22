@@ -30,7 +30,7 @@ class Program
        var3 = var1 + var2;
    }
    boolean variable;
-   int max1(int op, boolean op2, int y)
+   int max1(int op, boolean op2)
    {
       int tmp;
       int miMax;

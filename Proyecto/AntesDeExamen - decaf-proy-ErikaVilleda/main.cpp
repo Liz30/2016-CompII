@@ -16,7 +16,6 @@ extern int current_line;
 
 static int errors = 0;
 
-bool globalError = false;
 map<string, ResultValue> vars;
 map<string, ResultValue> varsTemp;
 map<string, ResultValue> methods;

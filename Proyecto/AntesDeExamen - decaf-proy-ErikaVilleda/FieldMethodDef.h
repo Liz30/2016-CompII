@@ -30,7 +30,6 @@ public:
   virtual string ToString() = 0;
   virtual void Execute() = 0;
   virtual string GenerateCode() = 0;
-  virtual bool ExecuteSemantic() = 0;
 
   string name;
 };
