@@ -146,7 +146,7 @@ class MethodDef : public FieldMethodDef
 		}
 
 		virtual bool ExecuteSemantic(){
-				
+
 				if (globalError)
 						return false;
 
@@ -195,7 +195,7 @@ class MethodDef : public FieldMethodDef
 		virtual string GenerateCode(){
 				stringstream varCode;
 
-				varCode << name << ":" << endl;
+				varCode << endl << name << ":" << endl;
 				ResultValue r = methods[name];
 
 				if (method_parameters != 0){

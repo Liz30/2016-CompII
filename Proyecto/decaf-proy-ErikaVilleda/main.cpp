@@ -26,7 +26,7 @@ map<string, int>  tempSAvailable;
 map<string, int>  paramAvailable;
 
 const char* regtemp[] = {"$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7", "$t8", "$t9"};
-const char* regtempsS[] = {"$s0", "$s1", "$s2", "$s3", "$s4", "$s5", "$s6", "$s7", "$s8", "$s9"};
+const char* regtempsS[] = {"$s0", "$s1", "$s2", "$s3", "$s4", "$s5", "$s6", "$s7"};
 const char* regParam[] = {"$a0", "$a1", "$a2", "$a3"};
 
 ClassDef *class_def;

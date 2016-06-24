@@ -74,6 +74,7 @@ enum ExpressionOperator
 bool ExistVarGlobal(string key);
 bool ExistVarTemp(string key);
 void ShowTemp();
+void ShowTempAvailable();
 bool ExistMethod(string key);
 string newTempsS();
 string newTemp();
@@ -95,6 +96,7 @@ class Expression
 		virtual ResultValue Evaluate() = 0;
 		virtual string ToString() = 0;
 		virtual ResultValue GenerateCode() = 0;
+		virtual bool ExecuteSemantic() = 0;
 
 		int line, column;
 		string place;
@@ -120,6 +122,7 @@ class BinaryExpression: public Expression
 		virtual ResultValue Evaluate();
 		virtual string ToString();
 		virtual ResultValue GenerateCode();
+		virtual bool ExecuteSemantic();
 
 		Expression *expr1;
 		Expression *expr2;
@@ -149,6 +152,7 @@ class UnaryExpression: public Expression
 		virtual ResultValue Evaluate();
 		virtual string ToString();
 		virtual ResultValue GenerateCode();
+		virtual bool ExecuteSemantic();
 
 		Expression *expr;
 		ExpressionOperator oper;
@@ -177,6 +181,7 @@ class LValueExpression: public Expression
 		virtual ResultValue Evaluate();
 		virtual string ToString();
 		virtual ResultValue GenerateCode();
+		virtual bool ExecuteSemantic();
 
 		string variable_name;
 		Expression *array_index;
@@ -207,6 +212,7 @@ class MethodCallExpression: public Expression
 		virtual ResultValue Evaluate();
 		virtual string ToString();
 		virtual ResultValue GenerateCode();
+		virtual bool ExecuteSemantic();
 
 		string method_name;
 		ExpressionList *method_arguments;
@@ -244,6 +250,7 @@ class ConstantExpression: public Expression
 		virtual ResultValue Evaluate(); // DONE
 		virtual string ToString();
 		virtual ResultValue GenerateCode();
+		virtual bool ExecuteSemantic();
 
 		Type constant_type;
 		union

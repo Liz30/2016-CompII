@@ -24,6 +24,16 @@ class Test {
       m = whileTest(8, false);
   }
 
+  void Aritmetica(int n1, int n2){
+    int r;
+    n1 = 10;
+    n2 = 3;
+    r = n1 + n2;
+    //print r;
+    r = n1 - n2;
+    print n2;
+  }
+
   void ifTest(){
       if ((i+20) > 10){
         print " i es menor a 10";

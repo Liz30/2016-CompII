@@ -195,6 +195,20 @@ bool AssignmentStatement::ExecuteSemantic(){
 }
 
 bool MethodCallStatement::ExecuteSemantic(){
+	if (name=="print"){
+			ExpressionList::iterator it = arguments->begin();
+			while (it!=arguments->end()){
+					Expression* n = *it;
+					ResultValue nr = n->Evaluate();
+					if (!n->ExecuteSemantic())
+							return false;
+					if (TypeToString(nr.type).compare("None")==0)
+							return false;
+					it++;
+			}
+	}
+	else
+			return false;
  	return true;
 }
 
@@ -249,6 +263,7 @@ bool BlockStatement::ExecuteSemantic(){
 				VariableDefList::iterator it = variable_def_list->begin();
 				while (it!=variable_def_list->end()){
 					VariableDef* n = *it;
+					//releaseTempS(n->name);
 					varsTemp.erase(n->name);
 					it++;
 				}
@@ -270,30 +285,65 @@ string AssignmentStatement::GenerateCode(){
 		if (ExistVarGlobal(n->variable_name)){
 				if (rvalue_r.isConstant){
 						string p = newTemp();
-						varCode << rvalue_r.code;
-						varCode << "	li " << p << ", " << rvalue_r.value.int_value << endl; // VALIDAR los demas tipos (bool, string)
-						varCode << "	sw " << p << ", " << n->variable_name << endl;
+						varCode << "	li " << p << ", " << rvalue_r.value.int_value << endl // VALIDAR los demas tipos (bool, string)
+										<< "	sw " << p << ", " << n->variable_name << endl;
 						releaseTemp(p);
 				}
 				else {
 						string p = newTemp();
-						varCode << rvalue_r.code;
-						varCode << "	sw " << rvalue_r.place << ", " << n->variable_name << endl;
+						varCode << rvalue_r.code << endl
+										<< "	sw " << rvalue_r.place << ", " << n->variable_name << endl;
 						releaseTemp(p);
 				}
 		}
 		if (ExistVarTemp(n->variable_name)){
+				varCode << rvalue_r.code << endl;
 				if (rvalue_r.isConstant)
 						varCode << "	li " << varsTemp[n->variable_name].place << ", " << rvalue_r.value.int_value << endl;
 				else
 						varCode << "	move " << varsTemp[n->variable_name].place << ", " << rvalue_r.place << endl;
 		}
 
+		releaseTemp(rvalue_r.place);
 		return varCode.str();
 }
 
 string MethodCallStatement::GenerateCode(){
 	stringstream varCode;
+
+	if (name.compare("print") == 0){
+			varCode << endl << "	# " << name << endl;
+			ExpressionList::iterator it = arguments->begin();
+			while (it!=arguments->end()){
+					Expression* n = *it;
+					ResultValue nr = n->GenerateCode();
+					if (nr.isConstant){
+							string lugarTemp = newTemp();
+							varCode << "	li " << lugarTemp << ", ";
+							switch (nr.type){
+								case Int: varCode << nr.value.int_value << endl; break;
+								case String: varCode << nr.value.string_value << endl; break;
+								case Boolean: varCode << nr.value.bool_value << endl; break;
+							}
+							varCode << "	move $a0, " << lugarTemp << endl <<
+												 "	li $v0, 1" << endl <<
+												 "	syscall" << endl;
+							releaseTemp(lugarTemp);
+					}
+					else{
+							varCode << nr.code << endl
+											<< "	move $a0, " << nr.place << endl
+											<< "	li $v0, 1" << endl
+											<< "	syscall" << endl;
+							releaseTemp(nr.place);
+					}
+					it++;
+			}
+	}
+	else
+			varCode << endl << "	# " << name << endl;
+
+	// Valor de retorno lo tiene que guardar en methods[name]
 	/*
 		READ:
 		li	$v0, 5			# load appropriate system call code into register $v0;
@@ -330,6 +380,7 @@ string ForStatement::GenerateCode(){
 
 string ReturnStatement::GenerateCode(){
 	stringstream varCode;
+	// add $v0, place, $zero
 	return varCode.str();
 }
 
@@ -363,6 +414,7 @@ string BlockStatement::GenerateCode(){
 
 		if (statement_list!=0){
 				StatementList::iterator its = statement_list->begin();
+				varCode << endl;
 				while (its!=statement_list->end()){
 						Statement* n = *its;
 						varCode << n->GenerateCode();
@@ -374,6 +426,7 @@ string BlockStatement::GenerateCode(){
 		if (variable_def_list!=0){
 				VariableDefList::iterator it = variable_def_list->begin();
 				int i = 0;
+				varCode << endl ;
 				while (it!=variable_def_list->end()){
 					VariableDef* n = *it;
 					varCode << "	lw " << varsTemp[n->name].place << ", " << i << "($sp)" << endl;

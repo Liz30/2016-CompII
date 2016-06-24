@@ -28,6 +28,7 @@ class Program
        var2 = 5;
        var1 = var2 + 2;
        var3 = var1 + var2;
+       print var1, var2, var3; // 7 5 12
    }
    boolean variable;
    int max1(int op, boolean op2, int y)
@@ -38,7 +39,7 @@ class Program
       op2 = false;
       op = 30;
 
-      miMax = 0;
+      miMax = op;
       while (tmp < 10)
       {
         tmp = tmp + 1;

@@ -125,9 +125,14 @@ public:
 				}
 				varCode << endl;
 		}
-		else
-			varCode << endl;
-
+		else{
+				switch (r.type){
+					case Int: varCode << "	" << 0; break;
+					case Boolean: varCode << "	"; break;
+					case String: varCode << "	"; break;
+				}
+				varCode << endl;
+		}
 		return varCode.str();
 	}
 

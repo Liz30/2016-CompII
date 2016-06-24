@@ -30,6 +30,7 @@ string newTemp(){
   for (int i = 0; i < 10; i++){
     if (tempAvailable.find(regtemp[i]) == tempAvailable.end()) {
         tempAvailable[regtemp[i]] = 0;
+        //cout << " newTemp: " << regtemp[i] << endl;
         return string(regtemp[i]);
     }
   }
@@ -37,7 +38,7 @@ string newTemp(){
 }
 
 string newTempsS(){
-  for (int i = 0; i < 10; i++){
+  for (int i = 0; i < 8; i++){
     if (tempSAvailable.find(regtempsS[i]) == tempSAvailable.end()) {
         tempSAvailable[regtempsS[i]] = 0;
         return string(regtempsS[i]);
@@ -87,6 +88,14 @@ void ShowTemp(){
 		}
 }
 
+void ShowTempAvailable(){
+		cout<<endl<<"TEMP AVAILABLE......"<<endl;
+		map<string, int>::iterator iv = tempAvailable.begin();
+		for (iv; iv!=tempAvailable.end(); iv++){
+				cout << "  Temp[" << iv->first << "] => Tipo: " << iv->second << endl;
+		}
+}
+
 bool ExistVarGlobal(string key){
 	map<string, ResultValue>::iterator it = vars.find(key);
 	if ( it != vars.end())
@@ -132,11 +141,10 @@ ResultValue BinaryExpression::GenerateCode(){
                 }
                 else if (expr2_r.isConstant) {
                       r.place = newTemp();
-                      code << expr1_r.code <<
+                      code << expr1_r.code << endl <<
                             "	addi " << r.place << ", " << expr1_r.place << ", " << expr2_r.value.int_value << endl;
                       releaseTemp(expr1_r.place);
                       r.code = code.str();
-                      r.value.int_value = 0;
                       r.isConstant = false;
                 }
                 else {
@@ -151,8 +159,46 @@ ResultValue BinaryExpression::GenerateCode(){
                     releaseTemp(expr2_r.place);
                 }
                 break;
+          case OpSub:
+                if (expr1_r.isConstant && expr2_r.isConstant){
+                    r.value.int_value = expr1->Evaluate().value.int_value - expr2->Evaluate().value.int_value;
+                    r.code = "";
+                    r.isConstant = true;
+                }
+                else if (expr2_r.isConstant) {
+                     r.place = newTemp();
+                     code << expr1_r.code << endl
+                          << "  addi " << r.place << ", " << expr1_r.place << ", " << (expr2_r.value.int_value*(-1)) << endl;
+                     releaseTemp(expr1_r.place);
+                     r.code = code.str();
+                     r.isConstant = false;
+                }
+                else if (expr1_r.isConstant){
+                      r.place = newTemp();
+                      string lugarTemp = newTemp();
+                      code << " li " << lugarTemp << ", " << expr1_r.value.int_value << endl
+                           << expr2_r.code << endl
+                           << " sub " << r.place << ", " << lugarTemp << ", " << expr2_r.place;
+                      releaseTemp(expr2_r.place);
+                      releaseTemp(lugarTemp);
+                      r.code = code.str();
+                      r.isConstant = false;
+                 }
+                 else {
+                    r.place = newTemp();
+                    code << expr1_r.code << endl
+                         << expr2_r.code << endl
+                         << " sub " << r.place << ", " << expr1_r.place << ", " << expr2_r.place;
+                    r.code = code.str();
+                    r.isConstant = false;
+                    releaseTemp(expr1_r.place);
+                    releaseTemp(expr2_r.place);
+                 }
+                break;
         }
       }
+  releaseTemp(expr1_r.place);
+  releaseTemp(expr2_r.place);
   return r;
 }
 
@@ -168,17 +214,18 @@ ResultValue LValueExpression::GenerateCode(){
 
   if (ExistVarGlobal(variable_name)){
     r.type = vars[variable_name].type;
-    code << "	lw " << r.place << ", " << variable_name << endl;
+    code << "	lw " << r.place << ", " << variable_name;// << endl;
   }
   else if (ExistVarTemp(variable_name)){
             r.type = varsTemp[variable_name].type;
-            code << "	lw " << r.place << ", " << variable_name << endl;
+            code << "	move " << r.place << ", " << varsTemp[variable_name].place;// << endl;
   }
   else{
       cout << " ERROR en Expression GC("<<line<<","<<column<<"): Variable \'"<<variable_name<<"\' no ha sido declarada. "<<endl;
   }
   r.isConstant = false;
   r.code = code.str();
+  //releaseTemp(r.place);
 
   return r;
 }
@@ -204,6 +251,29 @@ ResultValue ConstantExpression::GenerateCode(){
   return value;
 }
 
+/*
+ *  ExecuteSemantic()
+ */
+
+bool BinaryExpression::ExecuteSemantic(){
+    return true;
+}
+
+bool UnaryExpression::ExecuteSemantic(){
+    return true;
+}
+
+bool LValueExpression::ExecuteSemantic(){
+    return true;
+}
+
+bool MethodCallExpression::ExecuteSemantic(){
+    return true;
+}
+
+bool ConstantExpression::ExecuteSemantic(){
+    return true;
+}
 
 /*
  * Evaluate()
@@ -305,7 +375,7 @@ ResultValue MethodCallExpression::Evaluate()
 									}
 									else{
 											if  (method_arguments->size()==current->method_parameters->size()){
-													cout << "       WWWIIIII..."<<endl;
+													//cout << "       WWWIIIII..."<<endl;
 													ExpressionList::iterator iexp = method_arguments->begin();
 													ParameterDefList::iterator ipar = current->method_parameters->begin();
 													while (iexp!=method_arguments->end()){
@@ -320,7 +390,7 @@ ResultValue MethodCallExpression::Evaluate()
 																	cout << " ERROR en Expression ("<<line<<","<<column<<"): Tipos no son iguales."<<endl;
 															iexp++; ipar++;
 													}
-													ShowTemp();
+												//	ShowTemp();
 											}
 											else
 													cout << " ERROR en Expression ("<<line<<","<<column<<"): Cantidad de argumentos es incorrecto."<<endl;
