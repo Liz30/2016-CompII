@@ -116,10 +116,21 @@ public:
 		ResultValue r = vars[name];
 
 		varCode << name << ":	 " << t;
-
+	
 		if (initial_value!=0){
 				switch (r.type){
-					case Int: varCode << "	" << r.value.int_value; break;
+					case Int:
+							if (!is_array_def){
+									varCode << "	" << r.value.int_value;
+							}
+							else{
+									//for (int i=0; i<array_dimension; i++){
+									//		varCode <<
+									//}
+									//varCode
+									varCode << "size" << name << ": .word 	" << array_dimension;
+							}
+							break;
 					case Boolean: varCode << "	" << r.value.bool_value; break;
 					case String: varCode << "	" << r.value.string_value; break;
 				}
@@ -128,8 +139,8 @@ public:
 		else{
 				switch (r.type){
 					case Int: varCode << "	" << 0; break;
-					case Boolean: varCode << "	"; break;
-					case String: varCode << "	"; break;
+					case Boolean: varCode << "	" << 0; break;
+					case String: varCode << "	\" \""; break;
 				}
 				varCode << endl;
 		}

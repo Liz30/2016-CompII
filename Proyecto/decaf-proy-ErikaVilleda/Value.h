@@ -46,7 +46,7 @@ inline string TypeToMips(Type type)
 	{
 		case Int: return ".word";
 		case Char: return ".byte";
-		case Boolean: return ".byte";
+		case Boolean: return ".word";
 		case String: return ".asciiz";
 		//case Void: return "void";
 	}

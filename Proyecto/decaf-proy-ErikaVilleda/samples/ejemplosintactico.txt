@@ -19,7 +19,7 @@ class Program
          s = true;
          t = false;
          print a;
-      }
+      } 
       i = 100;
    }
 

@@ -207,16 +207,53 @@ bool MethodCallStatement::ExecuteSemantic(){
 					it++;
 			}
 	}
-	else
-			return false;
+	else{
+			if (!ExistMethod(name))
+					return false;
+			if (arguments!=0){
+					if (arguments->size()>4){
+							cout << " ERROR ("<<line<<", "<<column<<"): Cantidad de parametros mayor a 4" <<endl;
+							return false;
+					}
+					else{
+							ExpressionList::iterator it = arguments->begin();
+							while (it!=arguments->end()){
+									Expression* n = *it;
+									if (!n->ExecuteSemantic())
+											return false;
+									it++;
+							}
+					}
+			}
+	}
  	return true;
 }
 
 bool IfStatement::ExecuteSemantic(){
+	if (condition==0)
+			return false;
+	if (!condition->ExecuteSemantic())
+			return false;
+	if (true_part!=0) {
+			if (!true_part->ExecuteSemantic())
+					return false;
+	}
+	if (false_part!=0){
+			if (!false_part->ExecuteSemantic())
+					return false;
+	}
 	return true;
 }
 
 bool WhileStatement::ExecuteSemantic(){
+		if (condition==0)
+				return false;
+		if (!condition->ExecuteSemantic())
+				return false;
+		if (loop_body!=0){
+				if (!loop_body->ExecuteSemantic())
+						return false;
+		}
 		return true;
 }
 
@@ -303,7 +340,7 @@ string AssignmentStatement::GenerateCode(){
 				else
 						varCode << "	move " << varsTemp[n->variable_name].place << ", " << rvalue_r.place << endl;
 		}
-
+		releaseTemp(lvalue_r.place);
 		releaseTemp(rvalue_r.place);
 		return varCode.str();
 }
@@ -314,19 +351,19 @@ string MethodCallStatement::GenerateCode(){
 	if (name.compare("print") == 0){
 			varCode << endl << "	# " << name << endl;
 			ExpressionList::iterator it = arguments->begin();
+			string codePrint;
 			while (it!=arguments->end()){
 					Expression* n = *it;
 					ResultValue nr = n->GenerateCode();
 					if (nr.isConstant){
 							string lugarTemp = newTemp();
-							varCode << "	li " << lugarTemp << ", ";
 							switch (nr.type){
-								case Int: varCode << nr.value.int_value << endl; break;
-								case String: varCode << nr.value.string_value << endl; break;
-								case Boolean: varCode << nr.value.bool_value << endl; break;
+								case Int: varCode << "	li " << lugarTemp << ", " << nr.value.int_value << endl; codePrint = "1"; break;
+								case String: varCode << "	la " << lugarTemp << ", " << nr.value.string_value << endl; codePrint = "4"; break;
+								case Boolean: varCode << "	li " << lugarTemp << ", " << nr.value.bool_value << endl; codePrint = "1"; break;
 							}
 							varCode << "	move $a0, " << lugarTemp << endl <<
-												 "	li $v0, 1" << endl <<
+												 "	li $v0, " << codePrint << endl <<
 												 "	syscall" << endl;
 							releaseTemp(lugarTemp);
 					}
@@ -357,19 +394,52 @@ string MethodCallStatement::GenerateCode(){
 
 string IfStatement::GenerateCode(){
 	stringstream varCode;
-	/*ResultValue r = condition->GenerateCode();
+	ResultValue rcond = condition->GenerateCode();
 
-	varCode << r.code;
-	varCode << "	beq " << r.place << ", $zero, else";
-	varCode << true_part->GenerateCode();
-	varCode << "	j endif";
-	varCode << "else: " << endl << false_part->GenerateCode();
-	varCode << "endif:" << endl;*/
+	varCode << "	# IF " << endl;
+	if (rcond.isConstant){
+			string temp = newTemp();
+			varCode << "	li " << temp << ", " << rcond.value.bool_value << endl
+							<< "	beq " << temp << ", $zero, else" << endl;
+			releaseTemp(temp);
+	}
+	else {
+			varCode << rcond.code << endl
+							<< "	beq " << rcond.place << ", $zero, else" << endl;
+	}
+	if (true_part!=0){
+			varCode << true_part->GenerateCode() << endl
+						  << "	j endif" << endl;
+	}
+	varCode << " else: " << endl;
+	if (false_part!=0)
+	 		varCode << false_part->GenerateCode() << endl;
+	varCode << " endif:" << endl << endl;
+	releaseTemp(rcond.place);
 	return varCode.str();
 }
 
 string WhileStatement::GenerateCode(){
 	stringstream varCode;
+	ResultValue rcond = condition->GenerateCode();
+
+	varCode << "	# WHILE " << endl << " while: " << endl;
+	if (rcond.isConstant){
+			string temp = newTemp();
+			varCode << "	li " << temp << ", " << rcond.value.bool_value << endl
+							<< "	beq " << temp << ", $zero, endwhile" << endl;
+			releaseTemp(temp);
+	}
+	else {
+			varCode << rcond.code << endl
+							<< "	beq " << rcond.place << ", $zero, endwhile" << endl;
+	}
+	if (loop_body!=0){
+			varCode << loop_body->GenerateCode() << endl
+							<< "	j while" << endl;
+	}
+	varCode << " endwhile: " << endl;
+	releaseTemp(rcond.place);
 	return varCode.str();
 }
 

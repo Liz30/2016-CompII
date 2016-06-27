@@ -120,86 +120,248 @@ ResultValue BinaryExpression::GenerateCode(){
   ResultValue expr1_r = expr1->GenerateCode();
   ResultValue expr2_r = expr2->GenerateCode();
 
-  if (expr1_r.type == expr2_r.type) {
-      r.type = expr1_r.type;
+  r.type = expr1_r.type;
 
-      switch (oper){
-          case OpAdd:
-                if (expr1_r.isConstant && expr2_r.isConstant){
-                    r.value.int_value = expr1->Evaluate().value.int_value + expr2->Evaluate().value.int_value;
-                    r.code = "";
-                    r.isConstant = true;
-                }
-                else if (expr1_r.isConstant){
-                    r.place = newTemp();
-                    code << expr2_r.code << endl <<
-                        "	addi " << r.place << ", " << expr2_r.place << ", " << expr1_r.value.int_value << endl;
-                    releaseTemp(expr2_r.place);
-                    r.code = code.str();
-                    r.value.int_value = 0;
-                    r.isConstant = false;
-                }
-                else if (expr2_r.isConstant) {
-                      r.place = newTemp();
-                      code << expr1_r.code << endl <<
-                            "	addi " << r.place << ", " << expr1_r.place << ", " << expr2_r.value.int_value << endl;
-                      releaseTemp(expr1_r.place);
-                      r.code = code.str();
-                      r.isConstant = false;
-                }
-                else {
-                    r.place = newTemp();
-                    code << expr1_r.code << endl <<
-                        expr2_r.code << endl <<
-                        "	add " << r.place << ", " << expr1_r.place << ", " << expr2_r.place << endl;
-                    r.code = code.str();
-                    r.value.int_value = 0;
-                    r.isConstant = false;
-                    releaseTemp(expr1_r.place);
-                    releaseTemp(expr2_r.place);
-                }
-                break;
-          case OpSub:
-                if (expr1_r.isConstant && expr2_r.isConstant){
-                    r.value.int_value = expr1->Evaluate().value.int_value - expr2->Evaluate().value.int_value;
-                    r.code = "";
-                    r.isConstant = true;
-                }
-                else if (expr2_r.isConstant) {
+  switch (oper){
+      case OpAdd:
+            if (expr1_r.isConstant && expr2_r.isConstant){
+                r.value.int_value = expr1->Evaluate().value.int_value + expr2->Evaluate().value.int_value;
+                r.code = "";
+                r.isConstant = true;
+            }
+            else if (expr1_r.isConstant){
+                r.place = newTemp();
+                code << expr2_r.code << endl <<
+                    "	addi " << r.place << ", " << expr2_r.place << ", " << expr1_r.value.int_value << endl;
+                releaseTemp(expr2_r.place);
+                r.code = code.str();
+                r.value.int_value = 0;
+                r.isConstant = false;
+            }
+            else if (expr2_r.isConstant) {
+                  r.place = newTemp();
+                  code << expr1_r.code << endl <<
+                        "	addi " << r.place << ", " << expr1_r.place << ", " << expr2_r.value.int_value << endl;
+                  releaseTemp(expr1_r.place);
+                  r.code = code.str();
+                  r.isConstant = false;
+            }
+            else {
+                r.place = newTemp();
+                code << expr1_r.code << endl <<
+                    expr2_r.code << endl <<
+                    "	add " << r.place << ", " << expr1_r.place << ", " << expr2_r.place << endl;
+                r.code = code.str();
+                r.value.int_value = 0;
+                r.isConstant = false;
+                releaseTemp(expr1_r.place);
+                releaseTemp(expr2_r.place);
+            }
+            break;
+      case OpSub:
+            if (expr1_r.isConstant && expr2_r.isConstant){
+                r.value.int_value = expr1->Evaluate().value.int_value - expr2->Evaluate().value.int_value;
+                r.code = "";
+                r.isConstant = true;
+            }
+            else if (expr2_r.isConstant) {
+                 r.place = newTemp();
+                 code << expr1_r.code << endl
+                      << "  addi " << r.place << ", " << expr1_r.place << ", " << (expr2_r.value.int_value*(-1)) << endl;
+                 releaseTemp(expr1_r.place);
+                 r.code = code.str();
+                 r.isConstant = false;
+            }
+            else if (expr1_r.isConstant){
+                  r.place = newTemp();
+                  string lugarTemp = newTemp();
+                  code << " li " << lugarTemp << ", " << expr1_r.value.int_value << endl
+                       << expr2_r.code << endl
+                       << " sub " << r.place << ", " << lugarTemp << ", " << expr2_r.place;
+                  releaseTemp(expr2_r.place);
+                  releaseTemp(lugarTemp);
+                  r.code = code.str();
+                  r.isConstant = false;
+             }
+             else {
+                r.place = newTemp();
+                code << expr1_r.code << endl
+                     << expr2_r.code << endl
+                     << " sub " << r.place << ", " << expr1_r.place << ", " << expr2_r.place;
+                r.code = code.str();
+                r.isConstant = false;
+                releaseTemp(expr1_r.place);
+                releaseTemp(expr2_r.place);
+             }
+            break;
+      case OpMul:
+            if (expr1_r.isConstant && expr2_r.isConstant){
+                r.value.int_value = expr1->Evaluate().value.int_value * expr2->Evaluate().value.int_value;
+                r.code = "";
+                r.isConstant = true;
+                return r;
+            }
+            else if (expr1_r.isConstant){
+                r.place = newTemp();
+                string lugarTemp = newTemp();
+                code << " li " << lugarTemp << ", " << expr1_r.value.int_value << endl
+                     << expr2_r.code << endl
+                     << " mult " << lugarTemp << ", " << expr2_r.place << endl
+                     << " mflo " << r.place << endl;
+                releaseTemp(lugarTemp);
+            }
+            else if (expr2_r.isConstant){
+                  r.place = newTemp();
+                  string lugarTemp = newTemp();
+                  code << expr1_r.code << endl
+                       << " li " << lugarTemp << ", " << expr2_r.value.int_value << endl
+                       << " mult " << expr1_r.place << ", " << lugarTemp << endl
+                       << " mflo " << r.place << endl;
+                  releaseTemp(lugarTemp);
+            }
+            else {
+                r.place = newTemp();
+                code << expr1_r.code << endl
+                     << expr2_r.code << endl
+                     << " mult " << expr1_r.place << ", " << expr2_r.place << endl
+                     << " mflo " << r.place << endl;
+            }
+            r.code = code.str();
+            r.isConstant = false;
+            break;
+       case OpDiv:
+             if (expr1_r.isConstant && expr2_r.isConstant){
+                  r.value.int_value = expr1->Evaluate().value.int_value / expr2->Evaluate().value.int_value;
+                  r.code = "";
+                  r.isConstant = true;
+                  return r;
+              }
+              else if (expr1_r.isConstant){
+                 r.place = newTemp();
+                 string lugarTemp = newTemp();
+                 code << "  li " << lugarTemp << ", " << expr1_r.value.int_value << endl
+                      << expr2_r.code << endl
+                      << "  div " << lugarTemp << ", " << expr2_r.place << endl;
+                 releaseTemp(lugarTemp);
+              }
+              else if (expr2_r.isConstant){
                      r.place = newTemp();
+                     string lugarTemp = newTemp();
                      code << expr1_r.code << endl
-                          << "  addi " << r.place << ", " << expr1_r.place << ", " << (expr2_r.value.int_value*(-1)) << endl;
-                     releaseTemp(expr1_r.place);
-                     r.code = code.str();
-                     r.isConstant = false;
-                }
-                else if (expr1_r.isConstant){
-                      r.place = newTemp();
-                      string lugarTemp = newTemp();
-                      code << " li " << lugarTemp << ", " << expr1_r.value.int_value << endl
-                           << expr2_r.code << endl
-                           << " sub " << r.place << ", " << lugarTemp << ", " << expr2_r.place;
-                      releaseTemp(expr2_r.place);
-                      releaseTemp(lugarTemp);
-                      r.code = code.str();
-                      r.isConstant = false;
-                 }
-                 else {
+                          << "  li " << lugarTemp << ", " << expr2_r.value.int_value << endl
+                          << "  div " << expr1_r.place << ", " << lugarTemp << endl;
+                     releaseTemp(lugarTemp);
+              }
+              else {
+                   r.place = newTemp();
+                   code << expr1_r.code << endl
+                        << expr2_r.code << endl
+                        << "  div " << expr1_r.place << ", " << expr2_r.place << endl;
+              }
+              code << "  mflo " << r.place << endl;
+            r.code = code.str();
+            r.isConstant = false;
+            break;
+       case OpMod:
+            if (expr1_r.isConstant && expr2_r.isConstant){
+                 r.value.int_value = expr1->Evaluate().value.int_value % expr2->Evaluate().value.int_value;
+                 r.code = "";
+                 r.isConstant = true;
+                 return r;
+             }
+             else if (expr1_r.isConstant){
+                r.place = newTemp();
+                string lugarTemp = newTemp();
+                code << "  li " << lugarTemp << ", " << expr1_r.value.int_value << endl
+                     << expr2_r.code << endl
+                     << "  div " << lugarTemp << ", " << expr2_r.place << endl;
+                releaseTemp(lugarTemp);
+             }
+             else if (expr2_r.isConstant){
                     r.place = newTemp();
+                    string lugarTemp = newTemp();
                     code << expr1_r.code << endl
-                         << expr2_r.code << endl
-                         << " sub " << r.place << ", " << expr1_r.place << ", " << expr2_r.place;
-                    r.code = code.str();
-                    r.isConstant = false;
-                    releaseTemp(expr1_r.place);
-                    releaseTemp(expr2_r.place);
-                 }
-                break;
-        }
-      }
-  releaseTemp(expr1_r.place);
-  releaseTemp(expr2_r.place);
-  return r;
+                         << "  li " << lugarTemp << ", " << expr2_r.value.int_value << endl
+                         << "  div " << expr1_r.place << ", " << lugarTemp << endl;
+                    releaseTemp(lugarTemp);
+             }
+             else {
+                  r.place = newTemp();
+                  code << expr1_r.code << endl
+                       << expr2_r.code << endl
+                       << "  div " << expr1_r.place << ", " << expr2_r.place << endl;
+             }
+             code << "  mfhi " << r.place << endl;
+             r.code = code.str();
+             r.isConstant = false;
+             break;
+       case OpAnd:
+            r.place = newTemp();
+            code << " OPAND: " << expr1_r.code << endl
+                 << expr2_r.code << endl << "  FIN OPAND" << endl;
+            r.code = code.str();
+            r.isConstant = false;
+            break;
+       case OpGT:
+            r.place = newTemp();
+            if (expr1_r.isConstant && expr2_r.isConstant){
+                r.value.bool_value = expr1_r.value.int_value > expr2_r.value.int_value;
+                r.isConstant = true;
+                code << "  li " << r.place << ", " << r.value.bool_value << endl;
+                r.code = code.str();
+                return r;
+            }
+            else if (expr1_r.isConstant){
+               code << expr2_r.code << endl
+                    << "      slti " << r.place << ", " << expr2_r.place << ", " << expr1_r.value.int_value << endl;
+            }
+            else if (expr2_r.isConstant){
+              string temp = newTemp();
+              code << "      li " << temp << ", " << expr2_r.value.int_value << endl
+                   << expr1_r.code << endl
+                   << "      slt " << r.place << ", " << temp << ", " << expr1_r.place << endl;
+              releaseTemp(temp);
+            }
+            else {
+                code << expr1_r.code << endl
+                     << expr2_r.code << endl
+                     << "      slt " << r.place << ", " << expr2_r.place << ", " << expr1_r.place << endl;
+            }
+            r.isConstant = false;
+            r.code = code.str();
+            break;
+        case OpLT:
+             r.place = newTemp();
+             if (expr1_r.isConstant && expr2_r.isConstant){
+                 r.value.bool_value = expr1_r.value.int_value < expr2_r.value.int_value;
+                 r.isConstant = true;
+                 code << "  li " << r.place << ", " << r.value.bool_value << endl;
+                 r.code = code.str();
+                 return r;
+             }
+             else if (expr1_r.isConstant){
+                string temp = newTemp();
+                code << "      li " << temp << ", " << expr1_r.value.int_value << endl
+                     << expr2_r.code << endl
+                     << "      slt " << r.place << ", " << temp << ", " << expr2_r.place << endl;
+                releaseTemp(temp);
+             }
+             else if (expr2_r.isConstant){
+                code << expr1_r.code << endl
+                     << "      slti " << r.place << ", " << expr1_r.place << ", " << expr2_r.value.int_value << endl;
+             }
+             else {
+                 code << expr1_r.code << endl
+                      << expr2_r.code << endl
+                      << "      slt " << r.place << ", " << expr1_r.place << ", " << expr2_r.place << endl;
+             }
+             r.isConstant = false;
+             r.code = code.str();
+             break;
+    }
+    releaseTemp(expr1_r.place);
+    releaseTemp(expr2_r.place);
+    return r;
 }
 
 ResultValue UnaryExpression::GenerateCode(){
@@ -256,6 +418,14 @@ ResultValue ConstantExpression::GenerateCode(){
  */
 
 bool BinaryExpression::ExecuteSemantic(){
+    ResultValue expr1_r = expr1->GenerateCode();
+    ResultValue expr2_r = expr2->GenerateCode();
+    if (!expr1->ExecuteSemantic() || !expr2->ExecuteSemantic())
+        return false;
+    if (expr1_r.type != expr2_r.type){
+        cout << " ERROR ExpresionBinaria ("<<line<<", "<<column<<"): Tipos de datos distintos. " << endl;
+        return false;
+    }
     return true;
 }
 

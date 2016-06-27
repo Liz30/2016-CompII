@@ -6,29 +6,41 @@ var3:	 .word	0
 	.text
 
 main:
-	addi $sp, $sp, -8
+	addi $sp, $sp, -12
 	sw $s0, 0($sp)
-	sw $ra, 4($sp)
+	sw $s1, 4($sp)
+	sw $ra, 8($sp)
 
 
 	li $s0, 100
-	li $t2, 5
-	sw $t2, var2
-	lw $t3, var2
-	addi $t4, $t3, 2
-
-	sw $t4, var1
-	lw $t4, var1
+	li $t5, 5
+	sw $t5, var2
 	lw $t5, var2
-	add $t6, $t4, $t5
+	addi $t6, $t5, 2
 
-	sw $t6, var3
+	sw $t6, var1
+	lw $t5, var1
+	lw $t6, var2
+	add $t7, $t5, $t6
+
+	sw $t7, var3
+	# IF 
+	move $t4, $s1
+	move $t5, $s1
+      slt $t6, $t4, $t5
+
+	beq $t6, $zero, else
+
 
 	# print
 	lw $t4, var1
 	move $a0, $t4
 	li $v0, 1
 	syscall
+
+	j endif
+ else: 
+
 
 	# print
 	lw $t4, var2
@@ -36,35 +48,37 @@ main:
 	li $v0, 1
 	syscall
 
-	# print
-	lw $t4, var3
-	move $a0, $t4
-	li $v0, 1
-	syscall
+ endif:
 
-	# print
-	move $t4, $s0
-	move $a0, $t4
-	li $v0, 1
-	syscall
-
-	# print
-	move $t4, $s0
-  addi $t5, $t4, -10
-
-	move $a0, $t5
-	li $v0, 1
-	syscall
-
-	# print
-	move $t4, $s0
+	# WHILE 
+ while: 
+	lw $t4, var2
 	lw $t5, var1
- sub $t6, $t4, $t5
-	move $a0, $t6
+      slt $t6, $t4, $t5
+
+	beq $t6, $zero, endwhile
+
+
+	# print
+	lw $t4, var1
+	move $a0, $t4
 	li $v0, 1
 	syscall
+	lw $t5, var2
+	addi $t7, $t5, 1
+
+	sw $t7, var2
+
+	j while
+ endwhile: 
 
 	lw $s0, 0($sp)
-	lw $ra, 4($sp)
-	addi $sp, $sp, 8
+	lw $s1, 4($sp)
+	lw $ra, 8($sp)
+	addi $sp, $sp, 12
+
+
+	# FIN 
+ li $v0, 10
+ syscall
 

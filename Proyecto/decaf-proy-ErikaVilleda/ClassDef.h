@@ -182,6 +182,10 @@ class ClassDef
 								 itm++;
 							 }
 				   }
+
+					 mipsCode << endl << endl << "	# FIN " << endl
+					 					<< " li $v0, 10" << endl
+										<< " syscall" << endl;
 					 cout << mipsCode.str() << endl;
 		 	 }
 			 else
@@ -190,6 +194,7 @@ class ClassDef
 
 		bool ExecuteSemantic(){
 			FillVarsMethods();
+
 			if (field_def_list!=0){
 					VariableDefList::iterator it = field_def_list->begin();
 					while (it!=field_def_list->end()){

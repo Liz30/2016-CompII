@@ -31,16 +31,16 @@ enum ExpressionKind
 
 /*
  * Operadores validos en una expression (binaria o unaria)
- *  1. OpAdd = Suma
- *  2. OpSub = Resta
- *  3. OpMul = Multiplicacion
- *  4. OpDiv = Division
- *  5. OpMod = Modulo
+ *  1. OpAdd = Suma 						DONE
+ *  2. OpSub = Resta 						DONE
+ *  3. OpMul = Multiplicacion		DONE
+ *  4. OpDiv = Division					DONE
+ *  5. OpMod = Modulo						DONE
  *  6. OpAnd = Y booleano
  *  7. OpOr = O booleano
  *  8. OpNot = Negacion booleana
- *  9. OpGT = Mayor que
- * 10. OpLT = Menor que
+ *  9. OpGT = Mayor que					DONE
+ * 10. OpLT = Menor que					DONE
  * 11. OpGTE = Mayor o Igual que
  * 12. OpLTE = Menor o Igual que
  * 13. OpEq = Igualdad
